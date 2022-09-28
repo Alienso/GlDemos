@@ -29,7 +29,7 @@ vector<float> MapGen::generateChunk(vector<unsigned int>* ind,int coords[2]) {
 	for (int row = yOffset; row < yOffset + height; row++) {
 		for (int col = xOffset; col < xOffset + width; col++) {
 			vertices[i++] = (float)col ;
-			float y = (noiseMap)[(53 + hash(row)) * 53 + hash(col)];
+			float y = (*noiseMap)[(53 + hash(row)) * 53 + hash(col)];
 			vertices[i++] = y;
 			vertices[i++] = (float)row;
 
@@ -112,7 +112,7 @@ void MapGen::generateGrass(float *vertices, unsigned int *indices,int density) {
         for (int col = -width/2; col < width/2; col++) {
             for (int k=density;k>0;k--) {
                 float x = (float) col + (float)k/density - 1;
-                float y = (noiseMap)[(53 + hash(row)) * 53 + hash(col)];
+                float y = (*noiseMap)[(53 + hash(row)) * 53 + hash(col)];
                 float z = (float) row; + (float)k/density;
                 float xOffset = (float)(rand() % 100) / 100 - 0.5f;
                 float zOffset = (float)(rand() % 100) / 100 - 0.5f;
@@ -124,30 +124,37 @@ void MapGen::generateGrass(float *vertices, unsigned int *indices,int density) {
                 vertices[i++] = x;
                 vertices[i++] = y;
                 vertices[i++] = z;
+                vertices[i++] = y;
                 //1
                 vertices[i++] = x + 1.0f;
                 vertices[i++] = y;
                 vertices[i++] = z;
+                vertices[i++] = y;
                 //2
                 vertices[i++] = x + 0.15f;
                 vertices[i++] = y + 2.5f;
                 vertices[i++] = z;
+                vertices[i++] = y;
                 //3
                 vertices[i++] = x + 0.85f;
                 vertices[i++] = y + 2.5f;
                 vertices[i++] = z;
+                vertices[i++] = y;
                 //4
                 vertices[i++] = x + 0.25f;
                 vertices[i++] = y + 5.0f;
                 vertices[i++] = z;
+                vertices[i++] = y;
                 //5
                 vertices[i++] = x + 0.75f;
                 vertices[i++] = y + 5.0f;
                 vertices[i++] = z;
+                vertices[i++] = y;
                 //6
                 vertices[i++] = x + 0.5f;
                 vertices[i++] = y + 6.0f;
                 vertices[i++] = z;
+                vertices[i++] = y;
             }
         }
     }
@@ -177,7 +184,7 @@ void MapGen::generateMap(float** verticesData, unsigned int** indices){
     for (int row = -height/2; row < height/2; row++) {
         for (int col = -width/2; col < width/2; col++) {
             (*verticesData)[j++] = (float) col;
-            float y = (noiseMap)[(53 + hash(row)) * 53 + hash(col)];
+            float y = (*noiseMap)[(53 + hash(row)) * 53 + hash(col)];
             (*verticesData)[j++] = y;
             (*verticesData)[j++] = (float) row;
 
@@ -252,14 +259,14 @@ void MapGen::generateNoiseMap() {
 			else if (noiseHeight < min)
 				min = noiseHeight;
 
-            (noiseMap)[(53 + hash(y)) * 53 + hash(x)] = noiseHeight;
+            (*noiseMap)[(53 + hash(y)) * 53 + hash(x)] = noiseHeight;
 		}
 	}
 
 	//normalize
 	for (int y = - height; y < height; y++) {
 		for (int x = -width ; x < width; x++) {
-            (noiseMap)[(53 + hash(y)) * 53 + hash(x)] = (((noiseMap)[(53 + hash(y)) * 53 + hash(x)] - min) / (max - min))* amplitude;
+            (*noiseMap)[(53 + hash(y)) * 53 + hash(x)] = (((*noiseMap)[(53 + hash(y)) * 53 + hash(x)] - min) / (max - min))* amplitude;
 		}
 	}
 }

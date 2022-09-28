@@ -15,7 +15,7 @@ SceneRandomWorldGen::SceneRandomWorldGen(GLFWwindow *Window) : window(Window) {
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     int width = 100,height = 100;
-    mapGen = new MapGen(width,height,0.1,4,0.5f,2,3);
+    mapGen = new MapGen(width,height,0.1,4,0.5f,2,1);
 
     setupTerrain();
     setupGrass();
@@ -50,14 +50,15 @@ void SceneRandomWorldGen::setupGrass() {
     int density = 1;
     int width = mapGen->getWidth();
     int height = mapGen->getHeight();
-    float* vertices = (float*)calloc(width*height*density,7*3*sizeof(float)); //each grass has 7 vertices
+    float* vertices = (float*)calloc(width*height*density,7*4*sizeof(float)); //each grass has 7 vertices
     unsigned int* indices = (unsigned int*)calloc(width*height*density,5*3*sizeof(unsigned int));
 
     mapGen->generateGrass(vertices,indices,density);
 
-    grassVb = new VertexBuffer(vertices, width*height*density*7*3*sizeof(float));
+    grassVb = new VertexBuffer(vertices, width*height*density*7*4*sizeof(float));
     grassLayout = new VertexBufferLayout();
     grassLayout->push<float>(3);
+    grassLayout->push<float>(1);
     grassVa = new VertexArray();
     grassVa->addBuffer(*grassVb, *grassLayout);
     grassIb = new IndexBuffer(indices, width*height*density * 5*3);

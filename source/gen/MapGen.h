@@ -29,7 +29,7 @@ private:
 	float persistance;
 	float lacunarity;
 	float amplitude;
-	unordered_map<int, float> noiseMap;
+	unordered_map<int, float>* noiseMap = new unordered_map<int,float>();
 	uint32_t hash(uint32_t a);
 };
 

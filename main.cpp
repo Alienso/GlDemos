@@ -78,7 +78,7 @@ int main() {
     //Scene3D scene(window);
     SceneRandomWorldGen scene(window);
 
-    //printf("Hello!");
+    printf("Hello!");
 
     float lastTime = glfwGetTime();
     {
