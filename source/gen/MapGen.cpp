@@ -153,6 +153,39 @@ void MapGen::generateGrass(float *vertices, unsigned int *indices,int density) {
                 //6
                 vertices[i++] = x + 0.5f;
                 vertices[i++] = y + 6.0f;
+                vertices[i++] = z + 0.5f;
+                vertices[i++] = y;
+
+                z+=1;
+
+                //7
+                vertices[i++] = x;
+                vertices[i++] = y;
+                vertices[i++] = z;
+                vertices[i++] = y;
+                //8
+                vertices[i++] = x + 1.0f;
+                vertices[i++] = y;
+                vertices[i++] = z;
+                vertices[i++] = y;
+                //9
+                vertices[i++] = x + 0.15f;
+                vertices[i++] = y + 2.5f;
+                vertices[i++] = z;
+                vertices[i++] = y;
+                //10
+                vertices[i++] = x + 0.85f;
+                vertices[i++] = y + 2.5f;
+                vertices[i++] = z;
+                vertices[i++] = y;
+                //11
+                vertices[i++] = x + 0.25f;
+                vertices[i++] = y + 5.0f;
+                vertices[i++] = z;
+                vertices[i++] = y;
+                //12
+                vertices[i++] = x + 0.75f;
+                vertices[i++] = y + 5.0f;
                 vertices[i++] = z;
                 vertices[i++] = y;
             }
@@ -166,11 +199,45 @@ void MapGen::generateGrass(float *vertices, unsigned int *indices,int density) {
                               4,5,6};*/
     i=0;
     for (int k=0;k<width*height*density;k++){
+        //front plane
         for (int j=0;j<5;j++){
-            indices[i++] = j + k*7;
-            indices[i++] = j+1 + k*7;
-            indices[i++] = j+2 + k*7;
+            indices[i++] = j + k*13;
+            indices[i++] = j+1 + k*13;
+            indices[i++] = j+2 + k*13;
         }
+        //back plane
+        for (int j=7;j<11;j++){
+            indices[i++] = j + k*13;
+            indices[i++] = j+1 + k*13;
+            indices[i++] = j+2 + k*13;
+        }
+        //left right
+        for (int j=0;j<4;j++){
+            indices[i++] = j + k*13;
+            indices[i++] = j+2 + k*13;
+            indices[i++] = j+7 + k*13;
+
+            indices[i++] = j+2 + k*13;
+            indices[i++] = j+7 + k*13;
+            indices[i++] = j+9 + k*13;
+        }
+        /*0 2 7, 2 7 9
+        2 4 9, 4 9 11
+        1 3 8, 3 8 10
+        3 5 10, 5 10 12*/
+
+        //other 3 planes top triangle
+        indices[i++] = 11 + k*13;
+        indices[i++] = 12 + k*13;
+        indices[i++] = 6 + k*13;
+
+        indices[i++] = 5 + k*13;
+        indices[i++] = 12 + k*13;
+        indices[i++] = 6 + k*13;
+
+        indices[i++] = 11 + k*13;
+        indices[i++] = 4 + k*13;
+        indices[i++] = 6 + k*13;
     }
 }
 

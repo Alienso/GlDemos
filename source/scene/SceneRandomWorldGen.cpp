@@ -50,18 +50,18 @@ void SceneRandomWorldGen::setupGrass() {
     int density = 1;
     int width = mapGen->getWidth();
     int height = mapGen->getHeight();
-    float* vertices = (float*)calloc(width*height*density,7*4*sizeof(float)); //each grass has 7 vertices
-    unsigned int* indices = (unsigned int*)calloc(width*height*density,5*3*sizeof(unsigned int));
+    float* vertices = (float*)calloc(width*height*density * 2 - 1,7*4*sizeof(float)); //each grass has 13 vertices
+    unsigned int* indices = (unsigned int*)calloc(width*height*density,5*4*3*sizeof(unsigned int));
 
     mapGen->generateGrass(vertices,indices,density);
 
-    grassVb = new VertexBuffer(vertices, width*height*density*7*4*sizeof(float));
+    grassVb = new VertexBuffer(vertices, (width*height*density*2-1)*7*4*sizeof(float));
     grassLayout = new VertexBufferLayout();
     grassLayout->push<float>(3);
     grassLayout->push<float>(1);
     grassVa = new VertexArray();
     grassVa->addBuffer(*grassVb, *grassLayout);
-    grassIb = new IndexBuffer(indices, width*height*density * 5*3);
+    grassIb = new IndexBuffer(indices, width*height*density * 5*4*3);
 }
 
 void SceneRandomWorldGen::onRender() {
