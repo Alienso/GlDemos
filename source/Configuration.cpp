@@ -3,7 +3,7 @@
 //
 #include "Configuration.h"
 
-int Configuration:: wWidth = 800;
-int Configuration:: wHeight = 600;
+int Configuration:: wWidth = 1280;
+int Configuration:: wHeight = 720;
 float Configuration::fov = 45.0f;
 float Configuration::fovMax = 90.0f;

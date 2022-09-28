@@ -2,7 +2,6 @@
 #include <limits>
 #include <glm/vec3.hpp>
 
-#include <stdio.h>
 #include <iostream>
 
 using namespace std;
@@ -97,6 +96,75 @@ vector<float> MapGen::generateChunk(vector<unsigned int>* ind,int coords[2]) {
 		}
 	}
 	return vertices;
+}
+
+void MapGen::generateGrass(float *vertices, unsigned int *indices,int density) {
+    /*float vertices[] = { 0.0f, 0.0f, 0.0f,
+                     1.0f, 0.0f, 0.0f,
+                     0.15f, 2.5f, 0.0f,
+                     0.85f, 2.5f, 0.0f,
+                     0.25f, 5.0f, 0.0f,
+                     0.75f, 5.0f, 0.0f,
+                     0.5f, 6.0f, 0.0f};*/
+
+    int i=0;
+    for (int row = -height/2; row < height/2; row++) {
+        for (int col = -width/2; col < width/2; col++) {
+            for (int k=density;k>0;k--) {
+                float x = (float) col + (float)k/density - 1;
+                float y = (noiseMap)[(53 + hash(row)) * 53 + hash(col)];
+                float z = (float) row; + (float)k/density;
+                float xOffset = (float)(rand() % 100) / 100 - 0.5f;
+                float zOffset = (float)(rand() % 100) / 100 - 0.5f;
+
+                x += xOffset;
+                z += zOffset;
+
+                //0
+                vertices[i++] = x;
+                vertices[i++] = y;
+                vertices[i++] = z;
+                //1
+                vertices[i++] = x + 1.0f;
+                vertices[i++] = y;
+                vertices[i++] = z;
+                //2
+                vertices[i++] = x + 0.15f;
+                vertices[i++] = y + 2.5f;
+                vertices[i++] = z;
+                //3
+                vertices[i++] = x + 0.85f;
+                vertices[i++] = y + 2.5f;
+                vertices[i++] = z;
+                //4
+                vertices[i++] = x + 0.25f;
+                vertices[i++] = y + 5.0f;
+                vertices[i++] = z;
+                //5
+                vertices[i++] = x + 0.75f;
+                vertices[i++] = y + 5.0f;
+                vertices[i++] = z;
+                //6
+                vertices[i++] = x + 0.5f;
+                vertices[i++] = y + 6.0f;
+                vertices[i++] = z;
+            }
+        }
+    }
+
+    /*unsigned int indices[] = {0,1,2,
+                              1,2,3,
+                              2,3,4,
+                              3,4,5,
+                              4,5,6};*/
+    i=0;
+    for (int k=0;k<width*height*density;k++){
+        for (int j=0;j<5;j++){
+            indices[i++] = j + k*7;
+            indices[i++] = j+1 + k*7;
+            indices[i++] = j+2 + k*7;
+        }
+    }
 }
 
 void MapGen::generateMap(float** verticesData, unsigned int** indices){
@@ -204,4 +272,12 @@ uint32_t MapGen::hash(uint32_t a){
 	a = (a + 0xfd7046c5) + (a << 3);
 	a = (a ^ 0xb55a4f09) ^ (a >> 16);
 	return a;
+}
+
+int MapGen::getWidth() const {
+    return width;
+}
+
+int MapGen::getHeight() const {
+    return height;
 }

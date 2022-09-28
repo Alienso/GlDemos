@@ -9,40 +9,58 @@
 #include "../lib/glm//gtc/matrix_transform.hpp"
 #include "../gen/MapGen.h"
 
-
 SceneRandomWorldGen::SceneRandomWorldGen(GLFWwindow *Window) : window(Window) {
     glEnable(GL_DEPTH_TEST);
     glfwSetScrollCallback(window, scrollCallback);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-    shader = new Shader("perlin.vs", "perlin.fs");
-    int width = 20,height = 20;
+    int width = 100,height = 100;
+    mapGen = new MapGen(width,height,0.1,4,0.5f,2,3);
 
+    setupTerrain();
+    setupGrass();
+}
+
+void SceneRandomWorldGen::setupTerrain() {
+    terrainShader = new Shader("perlin.vs", "perlin.fs");
+
+    int width = mapGen->getWidth();
+    int height = mapGen->getHeight();
     float* vertices = (float*)calloc(width*height,sizeof(float)*6);
     unsigned int* indices = (unsigned int*)calloc((width-1)*(height-1),2*3*sizeof(unsigned int)); //2 triangles per square *3 vertexes per triangle
 
-    MapGen mapGen(width,height,0.4,4,0.5f,2,1);
-    mapGen.generateMap(&vertices,&indices);
+    mapGen->generateMap(&vertices,&indices);
 
-    vb = new VertexBuffer(vertices, width*height*sizeof(float)*6);
-    layout = new VertexBufferLayout();
-    layout->push<float>(3);
-    layout->push<float>(3);
-    va = new VertexArray();
-    va->addBuffer(*vb, *layout);
-    ib = new IndexBuffer(indices,(width-1)*(height-1)*2*3);
+    terrainVb = new VertexBuffer(vertices, width * height * sizeof(float) * 6);
+    terrainLayout = new VertexBufferLayout();
+    terrainLayout->push<float>(3);
+    terrainLayout->push<float>(3);
+    terrainVa = new VertexArray();
+    terrainVa->addBuffer(*terrainVb, *terrainLayout);
+    terrainIb = new IndexBuffer(indices, (width - 1) * (height - 1) * 2 * 3);
 
     free(vertices);
     free(indices);
 }
 
-SceneRandomWorldGen::~SceneRandomWorldGen() {
-    free(shader);
-    free(va);
-    free(vb);
-    free(layout);
-    free(ib);
-    glDisable(GL_DEPTH_TEST);
+void SceneRandomWorldGen::setupGrass() {
+
+    grassShader = new Shader("grass.vs", "grass.fs");
+
+    int density = 1;
+    int width = mapGen->getWidth();
+    int height = mapGen->getHeight();
+    float* vertices = (float*)calloc(width*height*density,7*3*sizeof(float)); //each grass has 7 vertices
+    unsigned int* indices = (unsigned int*)calloc(width*height*density,5*3*sizeof(unsigned int));
+
+    mapGen->generateGrass(vertices,indices,density);
+
+    grassVb = new VertexBuffer(vertices, width*height*density*7*3*sizeof(float));
+    grassLayout = new VertexBufferLayout();
+    grassLayout->push<float>(3);
+    grassVa = new VertexArray();
+    grassVa->addBuffer(*grassVb, *grassLayout);
+    grassIb = new IndexBuffer(indices, width*height*density * 5*3);
 }
 
 void SceneRandomWorldGen::onRender() {
@@ -55,25 +73,21 @@ void SceneRandomWorldGen::onRender() {
     glm::mat4 model = glm::mat4(1.0f);
 
     axes3D.render(projection,view,model);
-    shader->use();
 
-    shader->setMat4("projection", projection);
-    shader->setMat4("view", view);
-    shader->setMat4("model",model);
-    shader->setVec3("uColor",0.0f,1.0,0.0f);
+    terrainShader->use();
+    terrainShader->setMat4("projection", projection);
+    terrainShader->setMat4("view", view);
+    terrainShader->setMat4("model",model);
+    terrainShader->setVec3("uColor",0.0f,1.0,0.0f);
+    renderer.draw(*terrainVa, *terrainIb, *terrainShader);
 
-    renderer.draw(*va,*ib,*shader);
-
-    /*for (unsigned int i = 0; i < 10; i++)
-    {
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, cubePositions[i]);
-        float angle = 20.0f * i;
-        model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-        shader->setMat4("model", model);
-
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-    }*/
+    grassShader->use();
+    grassShader->setMat4("projection", projection);
+    grassShader->setMat4("view", view);
+    grassShader->setMat4("model",model);
+    grassShader->setVec3("uColor",0.0f,1.0,0.0f);
+    grassShader->setFloat("uTime",glfwGetTime());
+    renderer.draw(*grassVa, *grassIb, *grassShader);
 }
 
 void SceneRandomWorldGen::onUpdate(float deltaTime) {
@@ -158,4 +172,21 @@ void scrollCallback(GLFWwindow *window, double xoffset, double yoffset) {
         Configuration::fov = 1.0f;
     if (Configuration::fov > Configuration::fovMax)
         Configuration::fov = Configuration::fovMax;
+}
+
+SceneRandomWorldGen::~SceneRandomWorldGen() {
+    free(terrainShader);
+    free(terrainVa);
+    free(terrainVb);
+    free(terrainLayout);
+    free(terrainIb);
+
+    free(grassShader);
+    free(grassVa);
+    free(grassVb);
+    free(grassLayout);
+    free(grassIb);
+
+    free(mapGen);
+    glDisable(GL_DEPTH_TEST);
 }

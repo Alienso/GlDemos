@@ -16,6 +16,11 @@ public:
 	vector<float> generateChunk(vector<unsigned int>* ind,int coords[2]);
 	void generateNoiseMap();
     void generateMap(float** verticesData, unsigned int** indicesData);
+    void generateGrass(float *vertices, unsigned int* indices,int density); //TODO refactor
+
+    int getWidth() const;
+    int getHeight() const;
+
 private:
 	int width;
 	int height;

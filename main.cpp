@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <cmath>
+#include <cstdlib>
 
 #include "lib/imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
@@ -68,6 +69,8 @@ int main() {
 
     glEnable              ( GL_DEBUG_OUTPUT );
     glDebugMessageCallback( glErrorCallback, 0 );
+
+    srand(glfwGetTime());
 
     //SceneTexture scene;
     //SceneTriangle scene;
