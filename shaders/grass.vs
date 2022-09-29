@@ -13,7 +13,7 @@ uniform float uTime;
 void main()
 {
     vec3 pos = aPos;
-    pos.x = pos.x + (pos.y/6)*sin(uTime * (1 + baseHeight));
+    pos.x = pos.x + (pos.y/12)*sin(uTime * (1 + baseHeight));
 	gl_Position = projection * view * model * vec4(pos, 1.0f);
-	aColor = (uColor + vec3(aPos.y/8)) / 2;
+	aColor = (uColor + vec3(aPos.y/15)) / 2;
 }

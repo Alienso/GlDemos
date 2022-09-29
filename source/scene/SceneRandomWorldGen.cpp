@@ -47,7 +47,7 @@ void SceneRandomWorldGen::setupGrass() {
 
     grassShader = new Shader("grass.vs", "grass.fs");
 
-    int density = 1;
+    int density = 2;
     int width = mapGen->getWidth();
     int height = mapGen->getHeight();
     float* vertices = (float*)calloc(width*height*density * 2 - 1,7*4*sizeof(float)); //each grass has 13 vertices

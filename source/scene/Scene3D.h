@@ -10,7 +10,7 @@
 #include "../Camera.h"
 #include "../core/Texture.h"
 #include "../shapes/Axes3D.h"
-#include "../../../../../../MinGW/include/GLFW/glfw3.h"
+#include <GLFW/glfw3.h>
 
 class Scene3D : public Scene {
 public:

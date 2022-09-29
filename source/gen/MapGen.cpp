@@ -132,31 +132,31 @@ void MapGen::generateGrass(float *vertices, unsigned int *indices,int density) {
                 vertices[i++] = y;
                 //2
                 vertices[i++] = x + 0.15f;
-                vertices[i++] = y + 2.5f;
+                vertices[i++] = y + 5.0f;
                 vertices[i++] = z;
                 vertices[i++] = y;
                 //3
                 vertices[i++] = x + 0.85f;
-                vertices[i++] = y + 2.5f;
+                vertices[i++] = y + 5.0f;
                 vertices[i++] = z;
                 vertices[i++] = y;
                 //4
                 vertices[i++] = x + 0.25f;
-                vertices[i++] = y + 5.0f;
+                vertices[i++] = y + 10.0f;
                 vertices[i++] = z;
                 vertices[i++] = y;
                 //5
                 vertices[i++] = x + 0.75f;
-                vertices[i++] = y + 5.0f;
+                vertices[i++] = y + 10.0f;
                 vertices[i++] = z;
                 vertices[i++] = y;
                 //6
                 vertices[i++] = x + 0.5f;
-                vertices[i++] = y + 6.0f;
+                vertices[i++] = y + 12.0f;
                 vertices[i++] = z + 0.5f;
                 vertices[i++] = y;
 
-                z+=1;
+                z+=0.5;
 
                 //7
                 vertices[i++] = x;
@@ -170,22 +170,22 @@ void MapGen::generateGrass(float *vertices, unsigned int *indices,int density) {
                 vertices[i++] = y;
                 //9
                 vertices[i++] = x + 0.15f;
-                vertices[i++] = y + 2.5f;
+                vertices[i++] = y + 5.0f;
                 vertices[i++] = z;
                 vertices[i++] = y;
                 //10
                 vertices[i++] = x + 0.85f;
-                vertices[i++] = y + 2.5f;
+                vertices[i++] = y + 5.0f;
                 vertices[i++] = z;
                 vertices[i++] = y;
                 //11
                 vertices[i++] = x + 0.25f;
-                vertices[i++] = y + 5.0f;
+                vertices[i++] = y + 10.0f;
                 vertices[i++] = z;
                 vertices[i++] = y;
                 //12
                 vertices[i++] = x + 0.75f;
-                vertices[i++] = y + 5.0f;
+                vertices[i++] = y + 10.0f;
                 vertices[i++] = z;
                 vertices[i++] = y;
             }
