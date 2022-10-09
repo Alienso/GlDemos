@@ -8,6 +8,7 @@ using namespace std;
 
 struct Vertex{
     glm::vec3 pos,norm;
+    float base;
 };
 
 MapGen::MapGen(int width_, int height_, float scale_, int octaves_, float persistance_, float lacunarity_,float amplitude_):width(width_),height(height_),scale(scale_),octaves(octaves_),persistance(persistance_),lacunarity(lacunarity_),amplitude(amplitude_){
@@ -98,7 +99,7 @@ vector<float> MapGen::generateChunk(vector<unsigned int>* ind,int coords[2]) {
 	return vertices;
 }
 
-void MapGen::generateGrass(float *vertices, unsigned int *indices,int density) {
+void MapGen::generateGrass(float *verticesData, unsigned int *indices,int density) {
     /*float vertices[] = { 0.0f, 0.0f, 0.0f,
                      1.0f, 0.0f, 0.0f,
                      0.15f, 2.5f, 0.0f,
@@ -106,6 +107,9 @@ void MapGen::generateGrass(float *vertices, unsigned int *indices,int density) {
                      0.25f, 5.0f, 0.0f,
                      0.75f, 5.0f, 0.0f,
                      0.5f, 6.0f, 0.0f};*/
+
+    int verticesSize = (width*height*density*2-1)*7;
+    Vertex* vertices = new Vertex[verticesSize]();
 
     int i=0;
     for (int row = -height/2; row < height/2; row++) {
@@ -121,75 +125,89 @@ void MapGen::generateGrass(float *vertices, unsigned int *indices,int density) {
                 z += zOffset;
 
                 //0
-                vertices[i++] = x;
-                vertices[i++] = y;
-                vertices[i++] = z;
-                vertices[i++] = y;
+                vertices[i].pos.x = x;
+                vertices[i].pos.y = y;
+                vertices[i].pos.z = z;
+                vertices[i++].base = y;
                 //1
-                vertices[i++] = x + 1.0f;
-                vertices[i++] = y;
-                vertices[i++] = z;
-                vertices[i++] = y;
+                vertices[i].pos.x = x + 1.0f;
+                vertices[i].pos.y = y;
+                vertices[i].pos.z = z;
+                vertices[i++].base = y;
                 //2
-                vertices[i++] = x + 0.15f;
-                vertices[i++] = y + 5.0f;
-                vertices[i++] = z;
-                vertices[i++] = y;
+                vertices[i].pos.x = x + 0.15f;
+                vertices[i].pos.y = y + 5.0f;
+                vertices[i].pos.z = z;
+                vertices[i++].base = y;
                 //3
-                vertices[i++] = x + 0.85f;
-                vertices[i++] = y + 5.0f;
-                vertices[i++] = z;
-                vertices[i++] = y;
+                vertices[i].pos.x = x + 0.85f;
+                vertices[i].pos.y = y + 5.0f;
+                vertices[i].pos.z = z;
+                vertices[i++].base = y;
                 //4
-                vertices[i++] = x + 0.25f;
-                vertices[i++] = y + 10.0f;
-                vertices[i++] = z;
-                vertices[i++] = y;
+                vertices[i].pos.x = x + 0.25f;
+                vertices[i].pos.y = y + 10.0f;
+                vertices[i].pos.z = z;
+                vertices[i++].base = y;
                 //5
-                vertices[i++] = x + 0.75f;
-                vertices[i++] = y + 10.0f;
-                vertices[i++] = z;
-                vertices[i++] = y;
+                vertices[i].pos.x = x + 0.75f;
+                vertices[i].pos.y = y + 10.0f;
+                vertices[i].pos.z = z;
+                vertices[i++].base = y;
                 //6
-                vertices[i++] = x + 0.5f;
-                vertices[i++] = y + 12.0f;
-                vertices[i++] = z + 0.5f;
-                vertices[i++] = y;
+                vertices[i].pos.x = x + 0.5f;
+                vertices[i].pos.y = y + 12.0f;
+                vertices[i].pos.z = z + 0.5f;
+                vertices[i++].base = y;
 
                 z+=0.5;
 
                 //7
-                vertices[i++] = x;
-                vertices[i++] = y;
-                vertices[i++] = z;
-                vertices[i++] = y;
+                vertices[i].pos.x = x;
+                vertices[i].pos.y = y;
+                vertices[i].pos.z = z;
+                vertices[i++].base = y;
                 //8
-                vertices[i++] = x + 1.0f;
-                vertices[i++] = y;
-                vertices[i++] = z;
-                vertices[i++] = y;
+                vertices[i].pos.x = x + 1.0f;
+                vertices[i].pos.y = y;
+                vertices[i].pos.z = z;
+                vertices[i++].base = y;
                 //9
-                vertices[i++] = x + 0.15f;
-                vertices[i++] = y + 5.0f;
-                vertices[i++] = z;
-                vertices[i++] = y;
+                vertices[i].pos.x = x + 0.15f;
+                vertices[i].pos.y = y + 5.0f;
+                vertices[i].pos.z = z;
+                vertices[i++].base = y;
                 //10
-                vertices[i++] = x + 0.85f;
-                vertices[i++] = y + 5.0f;
-                vertices[i++] = z;
-                vertices[i++] = y;
+                vertices[i].pos.x = x + 0.85f;
+                vertices[i].pos.y = y + 5.0f;
+                vertices[i].pos.z = z;
+                vertices[i++].base = y;
                 //11
-                vertices[i++] = x + 0.25f;
-                vertices[i++] = y + 10.0f;
-                vertices[i++] = z;
-                vertices[i++] = y;
+                vertices[i].pos.x = x + 0.25f;
+                vertices[i].pos.y = y + 10.0f;
+                vertices[i].pos.z = z;
+                vertices[i++].base = y;
                 //12
-                vertices[i++] = x + 0.75f;
-                vertices[i++] = y + 10.0f;
-                vertices[i++] = z;
-                vertices[i++] = y;
+                vertices[i].pos.x = x + 0.75f;
+                vertices[i].pos.y = y + 10.0f;
+                vertices[i].pos.z = z;
+                vertices[i++].base = y;
             }
         }
+    }
+
+    //map to float[]
+    int j = 0;
+    for (int i = 0; i< verticesSize; i++){
+        (verticesData)[j++] = (vertices[i]).pos.x;
+        (verticesData)[j++] = (vertices[i]).pos.y;
+        (verticesData)[j++] = (vertices[i]).pos.z;
+
+        (verticesData)[j++] = 0.0f;//(vertices[i]).norm.x;
+        (verticesData)[j++] = 0.0f;//(vertices[i]).norm.y;
+        (verticesData)[j++] = 0.0f;//(vertices[i]).norm.z;
+
+        (verticesData)[j++] = vertices[i].base;
     }
 
     /*unsigned int indices[] = {0,1,2,
@@ -239,6 +257,8 @@ void MapGen::generateGrass(float *vertices, unsigned int *indices,int density) {
         indices[i++] = 4 + k*13;
         indices[i++] = 6 + k*13;
     }
+
+    delete[] vertices;
 }
 
 void MapGen::generateMap(float** verticesData, unsigned int** indices){

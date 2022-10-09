@@ -47,16 +47,18 @@ void SceneRandomWorldGen::setupGrass() {
 
     grassShader = new Shader("grass.vs", "grass.fs");
 
-    int density = 2;
+    int density = 1;
     int width = mapGen->getWidth();
     int height = mapGen->getHeight();
-    float* vertices = (float*)calloc(width*height*density * 2 - 1,7*4*sizeof(float)); //each grass has 13 vertices
+    int verticesSize = (width*height*density * 2 - 1)*7*7;
+    float* vertices = (float*)calloc(verticesSize,sizeof(float)); //each grass has 13 vertices
     unsigned int* indices = (unsigned int*)calloc(width*height*density,5*4*3*sizeof(unsigned int));
 
     mapGen->generateGrass(vertices,indices,density);
 
-    grassVb = new VertexBuffer(vertices, (width*height*density*2-1)*7*4*sizeof(float));
+    grassVb = new VertexBuffer(vertices, verticesSize*sizeof(float));
     grassLayout = new VertexBufferLayout();
+    grassLayout->push<float>(3);
     grassLayout->push<float>(3);
     grassLayout->push<float>(1);
     grassVa = new VertexArray();
@@ -82,13 +84,13 @@ void SceneRandomWorldGen::onRender() {
     terrainShader->setVec3("uColor",0.0f,1.0,0.0f);
     renderer.draw(*terrainVa, *terrainIb, *terrainShader);
 
-    grassShader->use();
+    /*grassShader->use();
     grassShader->setMat4("projection", projection);
     grassShader->setMat4("view", view);
     grassShader->setMat4("model",model);
     grassShader->setVec3("uColor",0.0f,1.0,0.0f);
     grassShader->setFloat("uTime",glfwGetTime());
-    renderer.draw(*grassVa, *grassIb, *grassShader);
+    renderer.draw(*grassVa, *grassIb, *grassShader);*/
 }
 
 void SceneRandomWorldGen::onUpdate(float deltaTime) {
