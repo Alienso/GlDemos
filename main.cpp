@@ -18,6 +18,7 @@
 #include "source/Configuration.h"
 #include "source/scene/Scene3D.h"
 #include "source/scene/SceneRandomWorldGen.h"
+#include "source/scene/SceneMemoryAllocate.h"
 
 void GLAPIENTRY glErrorCallback( GLenum source,
                  GLenum type,
@@ -41,7 +42,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height){
     Configuration::wHeight = height;
 }
 
-int main() {
+int main(int argc, char** argv) {
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -77,6 +78,7 @@ int main() {
     //SceneRayTracing scene;
     //Scene3D scene(window);
     SceneRandomWorldGen scene(window);
+    //SceneMemoryAllocate scene(atoi(argv[1]));
 
     //printf("Hello!");
 

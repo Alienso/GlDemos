@@ -14,7 +14,7 @@ SceneRandomWorldGen::SceneRandomWorldGen(GLFWwindow *Window) : window(Window) {
     glfwSetScrollCallback(window, scrollCallback);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-    int width = 100,height = 100;
+    int width = 500,height = 500;
     mapGen = new MapGen(width,height,0.1,4,0.5f,2,1);
 
     setupTerrain();
@@ -84,13 +84,13 @@ void SceneRandomWorldGen::onRender() {
     terrainShader->setVec3("uColor",0.0f,1.0,0.0f);
     renderer.draw(*terrainVa, *terrainIb, *terrainShader);
 
-    /*grassShader->use();
+    grassShader->use();
     grassShader->setMat4("projection", projection);
     grassShader->setMat4("view", view);
     grassShader->setMat4("model",model);
     grassShader->setVec3("uColor",0.0f,1.0,0.0f);
     grassShader->setFloat("uTime",glfwGetTime());
-    renderer.draw(*grassVa, *grassIb, *grassShader);*/
+    renderer.draw(*grassVa, *grassIb, *grassShader);
 }
 
 void SceneRandomWorldGen::onUpdate(float deltaTime) {

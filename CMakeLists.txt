@@ -25,7 +25,7 @@ add_executable(grassTerrain main.cpp
         source/core/Texture.cpp source/core/Texture.h
         source/gen/PerlinNoise.cpp source/gen/PerlinNoise.h
         source/gen/MapGen.cpp source/gen/MapGen.h
-        source/scene/Scene.cpp source/scene/Scene.h source/scene/SceneTexture.cpp source/scene/SceneTexture.h source/scene/SceneTriangle.cpp source/scene/SceneTriangle.h source/scene/SceneRayTracing.cpp source/scene/SceneRayTracing.h source/scene/Scene3D.cpp source/scene/Scene3D.h source/Configuration.h source/Camera.cpp source/Camera.h source/Configuration.cpp source/shapes/Circle.cpp source/shapes/Circle.h source/shapes/Shape.cpp source/shapes/Shape.h source/shapes/Axes3D.cpp source/shapes/Axes3D.h source/scene/SceneRandomWorldGen.cpp source/scene/SceneRandomWorldGen.h)
+        source/scene/Scene.cpp source/scene/Scene.h source/scene/SceneTexture.cpp source/scene/SceneTexture.h source/scene/SceneTriangle.cpp source/scene/SceneTriangle.h source/scene/SceneRayTracing.cpp source/scene/SceneRayTracing.h source/scene/Scene3D.cpp source/scene/Scene3D.h source/Configuration.h source/Camera.cpp source/Camera.h source/Configuration.cpp source/shapes/Circle.cpp source/shapes/Circle.h source/shapes/Shape.cpp source/shapes/Shape.h source/shapes/Axes3D.cpp source/shapes/Axes3D.h source/scene/SceneRandomWorldGen.cpp source/scene/SceneRandomWorldGen.h source/scene/SceneMemoryAllocate.cpp source/scene/SceneMemoryAllocate.h)
 
 target_link_libraries(grassTerrain glfw3 gdi32 opengl32)
 
