@@ -121,9 +121,16 @@ void SceneAdvancedRayTracing::onImGuiRender() {
 
     if(selectedSphere != nullptr){
         ImGui::Begin("Sphere");
-        createWidget(ImGui::SliderFloat("X",&selectedSphere->position.x,-200,200));
-        createWidget(ImGui::SliderFloat("Y",&selectedSphere->position.y,-200,200));
-        createWidget(ImGui::SliderFloat("Z",&selectedSphere->position.z,-200,200));
+        createWidget(ImGui::SliderFloat("X",&selectedSphere->position.x,-50,50));
+        createWidget(ImGui::SliderFloat("Y",&selectedSphere->position.y,-20,50));
+        createWidget(ImGui::SliderFloat("Z",&selectedSphere->position.z,-20,50));
+
+        createWidget(ImGui::InputFloat("Radius",&selectedSphere->radius,0.1f,1));
+        createWidget(ImGui::InputFloat3("Color",&selectedSphere->material.color.x)); //todo this shouldnt be done like this
+        createWidget(ImGui::InputFloat3("Emission Color",&selectedSphere->material.emissionColor.x));
+        createWidget(ImGui::InputFloat("Emission Strength",&selectedSphere->material.emissionStrength, 0.1f, 1));
+        createWidget(ImGui::InputFloat("Smoothness",&selectedSphere->material.smoothness, 0.05f, 0.2f));
+
         ImGui::End();
     }
 }
