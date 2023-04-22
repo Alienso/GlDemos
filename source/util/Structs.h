@@ -11,9 +11,11 @@ struct RayTracingMaterial{
     glm::vec4 color;
     glm::vec3 emissionColor;
     float emissionStrength;
+    float smoothness;
 
     RayTracingMaterial(){};
-    RayTracingMaterial(glm::vec4 _color, glm::vec3 _emissionColor, float _emissionStrength) : color(_color), emissionColor(_emissionColor), emissionStrength(_emissionStrength){};
+    RayTracingMaterial(glm::vec4 _color, glm::vec3 _emissionColor, float _emissionStrength, float _smoothness) : color(_color),
+    emissionColor(_emissionColor), emissionStrength(_emissionStrength), smoothness(_smoothness){};
 };
 
 struct Sphere{

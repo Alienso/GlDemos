@@ -4,6 +4,7 @@ struct RayTracingMaterial{
     vec4 color;
     vec3 emissionColor;
     float emissionStrength;
+    float smoothness;
 };
 
 struct Sphere{
@@ -142,7 +143,7 @@ vec3 trace(Ray ray, inout uint state){
             ray.origin = hitInfo.hitPoint;
             vec3 diffuseDir = normalize(hitInfo.normal + randomDirection(state));
             vec3 specularDir = reflect(ray.dir, hitInfo.normal);
-            ray.dir = mix(diffuseDir, specularDir, 0.0);
+            ray.dir = mix(diffuseDir, specularDir, hitInfo.material.smoothness);
             //ray.dir = randomHemisphereDirection(hitInfo.normal, state);
 
             vec3 emittedLight = hitInfo.material.emissionColor * hitInfo.material.emissionStrength;

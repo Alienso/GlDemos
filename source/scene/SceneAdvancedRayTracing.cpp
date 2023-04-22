@@ -67,6 +67,7 @@ void SceneAdvancedRayTracing::SetUniformSpheres(const std::string& name, Sphere*
         glUniform4f(glGetUniformLocation(shader->ID, (name + "[" + std::to_string(i) + "].material.color").c_str()), array[i].material.color.x,array[i].material.color.y,array[i].material.color.z,array[i].material.color.w);
         glUniform3f(glGetUniformLocation(shader->ID, (name + "[" + std::to_string(i) + "].material.emissionColor").c_str()), array[i].material.emissionColor.x,array[i].material.emissionColor.y,array[i].material.emissionColor.z);
         glUniform1f(glGetUniformLocation(shader->ID, (name + "[" + std::to_string(i) + "].material.emissionStrength").c_str()), array[i].material.emissionStrength);
+        glUniform1f(glGetUniformLocation(shader->ID, (name + "[" + std::to_string(i) + "].material.smoothness").c_str()), array[i].material.smoothness);
     }
 }
 
@@ -108,7 +109,7 @@ void SceneAdvancedRayTracing::onImGuiRender() {
     createWidget(ImGui::SliderFloat("X",&sunX,-200,200));
     createWidget(ImGui::SliderFloat("Y",&sunY,-200,200));
     createWidget(ImGui::SliderFloat("Z",&sunZ,-200,200));
-    createWidget(ImGui::SliderFloat("Strength", &sunStrength, -1, 50));
+    createWidget(ImGui::SliderFloat("Strength", &sunStrength, -1, 10));
 
     ImGui::End();
 }

@@ -17,8 +17,8 @@ void RayTracingMaterials::init(){
 
     glm::vec3 emissionWhite = glm::vec3(1.0,1.0,1.0);
 
-    red = {colorRed, emissionWhite, 0};
-    green = {colorGreen, emissionWhite, 0};
-    blue = {colorBlue, emissionWhite, 0};
-    light = {colorWhite, emissionWhite, 0};
+    red = {colorRed, emissionWhite, 0, 0.0f};
+    green = {colorGreen, emissionWhite, 0, 0.0f};
+    blue = {colorBlue, emissionWhite, 0, 0.0f};
+    light = {colorWhite, emissionWhite, 0, 0.0f};
 }
