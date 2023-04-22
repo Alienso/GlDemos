@@ -1,5 +1,5 @@
 //
-// Created by Alienson on 26.9.2022..
+// Created by Alienso on 26.9.2022..
 //
 
 #ifndef GRASSTERRAIN_CIRCLE_H

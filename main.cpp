@@ -19,6 +19,8 @@
 #include "source/scene/Scene3D.h"
 #include "source/scene/SceneRandomWorldGen.h"
 #include "source/scene/SceneMemoryAllocate.h"
+#include "source/scene/SceneAdvancedRayTracing.h"
+#include "source/util/RayTracingMaterials.h"
 
 void GLAPIENTRY glErrorCallback( GLenum source,
                  GLenum type,
@@ -32,7 +34,7 @@ void GLAPIENTRY glErrorCallback( GLenum source,
         return;
     }
     fprintf( stderr, "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n",
-             ( type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : "" ),
+             "** GL ERROR **",
              type, severity, message );
 }
 
@@ -68,18 +70,22 @@ int main(int argc, char** argv) {
     ImGui_ImplOpenGL3_Init("#version 430");
     ImGui::StyleColorsDark();
 
-    glEnable              ( GL_DEBUG_OUTPUT );
-    glDebugMessageCallback( glErrorCallback, 0 );
+    glEnable( GL_TEXTURE_2D );
+    glEnable( GL_DEBUG_OUTPUT );
+    glDebugMessageCallback( glErrorCallback, nullptr );
 
     srand(glfwGetTime());
+    RayTracingMaterials::init();
 
     //SceneTexture scene;
     //SceneTriangle scene;
     //SceneRayTracing scene;
     //Scene3D scene(window);
-    SceneRandomWorldGen scene(window);
+    //SceneRandomWorldGen scene(window);
     //SceneMemoryAllocate scene(atoi(argv[1]));
+    SceneAdvancedRayTracing scene;
 
+    //printf("Hello!");
     //printf("Hello!");
 
     float lastTime = glfwGetTime();

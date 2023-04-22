@@ -6,7 +6,7 @@ uniform vec4 uMouse;
 uniform vec2 uResolution;
 
 #define AVERAGECOUNT 64
-#define MAX_BOUNCE 64
+#define MAX_BOUNCE 32
 
 //--scene data---------------------------------------------------------------------
 #define SPHERECOUNT 6
