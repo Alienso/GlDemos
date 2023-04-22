@@ -13,13 +13,15 @@
 
 class SceneAdvancedRayTracing : public Scene {
 public:
-    SceneAdvancedRayTracing();
+    explicit SceneAdvancedRayTracing(GLFWwindow* _window);
     ~SceneAdvancedRayTracing();
     void onRender() override ;
     void onUpdate(float deltaTime) override ;
     void onImGuiRender() override ;
 
 private:
+    GLFWwindow* window;
+
     Shader* shader;
     Shader* screenShader;
     VertexArray* va;
@@ -27,7 +29,8 @@ private:
     VertexBufferLayout* layout;
     IndexBuffer* ib;
     FrameBuffer* fb;
-    Sphere Spheres[10];
+    Sphere spheres[10];
+    Sphere* selectedSphere = nullptr;
 
     unsigned int framesRendered = 0;
     int resetFrameBuffer = 0;
@@ -37,6 +40,11 @@ private:
     void createWidget(bool valueChanged);
     void setupSpheres();
     void SetUniformSpheres(const std::string& name, Sphere* array, int size);
+
+    void processMouseInput();
+    void trace(double xPos, double yPos);
+    float raySphere(glm::vec3& rayOrigin, glm::vec3& rayDir, glm::vec3& sphereCenter, float sphereRadius);
+
 };
 
 #endif //GRASSTERRAIN_SCENEADVANCEDRAYTRACING_H

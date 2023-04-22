@@ -70,7 +70,6 @@ int main(int argc, char** argv) {
     ImGui_ImplOpenGL3_Init("#version 430");
     ImGui::StyleColorsDark();
 
-    glEnable( GL_TEXTURE_2D );
     glEnable( GL_DEBUG_OUTPUT );
     glDebugMessageCallback( glErrorCallback, nullptr );
 
@@ -83,7 +82,7 @@ int main(int argc, char** argv) {
     //Scene3D scene(window);
     //SceneRandomWorldGen scene(window);
     //SceneMemoryAllocate scene(atoi(argv[1]));
-    SceneAdvancedRayTracing scene;
+    SceneAdvancedRayTracing scene(window);
 
     //printf("Hello!");
     //printf("Hello!");

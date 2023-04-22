@@ -15,9 +15,9 @@ class SceneRandomWorldGen : public Scene {
 public:
     SceneRandomWorldGen(GLFWwindow* window);
     ~SceneRandomWorldGen();
-    void onRender() override ;
-    void onUpdate(float deltaTime) override ;
-    void onImGuiRender() override ;
+    void onRender() override;
+    void onUpdate(float deltaTime) override;
+    void onImGuiRender() override;
 
 private:
     Axes3D axes3D;
