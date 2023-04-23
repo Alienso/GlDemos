@@ -15,7 +15,12 @@ public:
     static RayTracingMaterial red;
     static RayTracingMaterial blue;
     static RayTracingMaterial green;
-    static RayTracingMaterial light;
+    static RayTracingMaterial white;
+    static RayTracingMaterial lightBlue;
+    static RayTracingMaterial darkGrey;
+    static RayTracingMaterial purple;
+    static RayTracingMaterial yellow;
+    static RayTracingMaterial cyan;
 };
 
 

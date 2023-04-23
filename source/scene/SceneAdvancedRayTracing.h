@@ -29,17 +29,17 @@ private:
     VertexBufferLayout* layout;
     IndexBuffer* ib;
     FrameBuffer* fb;
-    Sphere spheres[10];
+    std::vector<Sphere> spheres{};
     Sphere* selectedSphere = nullptr;
 
     unsigned int framesRendered = 0;
     int resetFrameBuffer = 0;
-    float sunX = -60,sunY = 40,sunZ = 5;
-    float sunStrength = 1;
 
     void createWidget(bool valueChanged);
-    void setupSpheres();
-    void SetUniformSpheres(const std::string& name, Sphere* array, int size);
+    void setupSpheresBasic();
+    void setupSpheresReflectingOrbs();
+    void setupSpheresReflectingWalls();
+    void SetUniformSpheres(const std::string& name, std::vector<Sphere>& array);
 
     void processMouseInput();
     void trace(double xPos, double yPos);

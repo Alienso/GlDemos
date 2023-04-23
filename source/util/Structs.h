@@ -14,7 +14,7 @@ struct RayTracingMaterial{
     float smoothness;
 
     RayTracingMaterial(){};
-    RayTracingMaterial(glm::vec4 _color, glm::vec3 _emissionColor, float _emissionStrength, float _smoothness) : color(_color),
+    RayTracingMaterial(glm::vec4 _color, glm::vec3 _emissionColor, float _emissionStrength = 0, float _smoothness = 0) : color(_color),
     emissionColor(_emissionColor), emissionStrength(_emissionStrength), smoothness(_smoothness){};
 };
 

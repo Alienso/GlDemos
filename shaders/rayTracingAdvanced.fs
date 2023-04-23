@@ -23,7 +23,7 @@ uniform vec2 uResolution;
 
 uniform int uSphereCount;
 uniform uint uFramesRendered;
-uniform Sphere uSpheres[6];
+uniform Sphere uSpheres[10];
 
 uniform int uResetBuffer;
 uniform sampler2D uPrevFrame;
@@ -141,9 +141,17 @@ vec3 trace(Ray ray, inout uint state){
         HitInfo hitInfo = CalculateRayCollision(ray);
         if (hitInfo.didHit){
             ray.origin = hitInfo.hitPoint;
-            vec3 diffuseDir = normalize(hitInfo.normal + randomDirection(state));
-            vec3 specularDir = reflect(ray.dir, hitInfo.normal);
-            ray.dir = mix(diffuseDir, specularDir, hitInfo.material.smoothness);
+            float smoothness = hitInfo.material.smoothness;
+            if (smoothness == 0){
+                ray.dir = normalize(hitInfo.normal + randomDirection(state));
+            }else if (smoothness >= 1){
+                ray.dir = reflect(ray.dir, hitInfo.normal);
+            }
+            else{
+                vec3 diffuseDir = normalize(hitInfo.normal + randomDirection(state));
+                vec3 specularDir = reflect(ray.dir, hitInfo.normal);
+                ray.dir = mix(diffuseDir, specularDir,smoothness);
+            }
             //ray.dir = randomHemisphereDirection(hitInfo.normal, state);
 
             vec3 emittedLight = hitInfo.material.emissionColor * hitInfo.material.emissionStrength;

@@ -123,7 +123,7 @@ vec4 calculateFinalColor(vec3 cameraPos, vec3 cameraRayDir, float AAIndex)
                 break;
             }
 
-    		absorbMul *= 0.8; //every bounce absorb some light(more bounces = darker)
+    		absorbMul *= 0.8; //every bounce absorb some white(more bounces = darker)
 
             //update rayStartPos for next bounce
     		rayStartPos = rayStartPos + rayDir * h.rayLength;
@@ -133,7 +133,7 @@ vec4 calculateFinalColor(vec3 cameraPos, vec3 cameraRayDir, float AAIndex)
     }
 
     //can't write recursive function in GLSL, so write it in a for loop
-    //will loop until hitting any light source / bounces too many times
+    //will loop until hitting any white source / bounces too many times
     return vec4(finalColor,firstHitRayLength);//alpha nly for CineShader, to show depth
 }
 
