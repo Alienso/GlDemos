@@ -30,7 +30,9 @@ SceneAdvancedRayTracing::SceneAdvancedRayTracing(GLFWwindow* _window) : window(_
             2, 3, 0
     };
 
-    setupSpheresReflectingWalls();
+    //setupSpheresReflectingWalls();
+    //setupSpheresReflectingOrbs();
+    setupSpheresBasic();
 
     vb = new VertexBuffer(vertices, sizeof(vertices));
     layout = new VertexBufferLayout();
@@ -58,6 +60,7 @@ SceneAdvancedRayTracing::~SceneAdvancedRayTracing() {
 void SceneAdvancedRayTracing::setupSpheresBasic() {
     spheres.emplace_back(glm::vec3(-120, 80, 50), 35.0, RayTracingMaterials::white);
     spheres[0].material.emissionStrength = 10; //this is the sun
+    spheres[0].material.isInvisibleLightSource = 1;
 
     spheres.emplace_back(glm::vec3(16.4,7,-0.65), 10.0, RayTracingMaterials::white);
     spheres.emplace_back(glm::vec3(-0.9, 3.9, -5), 6.0, RayTracingMaterials::red);
@@ -80,9 +83,9 @@ void SceneAdvancedRayTracing::setupSpheresReflectingOrbs() {
     spheres.emplace_back(glm::vec3(-1030.0, 0.0, 0.0), 1000, RayTracingMaterials::red); //left
 
     spheres.emplace_back(glm::vec3(10.0, 0.0, 0.0), 8, RayTracingMaterials::yellow);
-    spheres[spheres.size()-1].material.smoothness = 1;
+    spheres[spheres.size()-1].material.smoothness = spheres[spheres.size()-1].material.specularProbability = 1;
     spheres.emplace_back(glm::vec3(-10.0, 0.0, 0.0), 8, RayTracingMaterials::cyan);
-    spheres[spheres.size()-1].material.smoothness = 1;
+    spheres[spheres.size()-1].material.smoothness = spheres[spheres.size()-1].material.specularProbability = 1;
 }
 
 void SceneAdvancedRayTracing::setupSpheresReflectingWalls() {
@@ -90,17 +93,17 @@ void SceneAdvancedRayTracing::setupSpheresReflectingWalls() {
     spheres[0].material.emissionStrength = 20; //this is the sun
 
     spheres.emplace_back(glm::vec3(0.0, -1030.0, 0.0), 1000, RayTracingMaterials::white); //bottom
-    spheres[spheres.size()-1].material.smoothness = 1;
+    spheres[spheres.size()-1].material.smoothness = spheres[spheres.size()-1].material.specularProbability = 1;
     spheres.emplace_back(glm::vec3(0.0, 1030.0, 0.0), 1000, RayTracingMaterials::white); //top
-    spheres[spheres.size()-1].material.smoothness = 1;
+    spheres[spheres.size()-1].material.smoothness = spheres[spheres.size()-1].material.specularProbability = 1;
     spheres.emplace_back(glm::vec3(0.0, 0.0, 1030.0), 1000, RayTracingMaterials::lightBlue); //back
-    spheres[spheres.size()-1].material.smoothness = 1;
+    spheres[spheres.size()-1].material.smoothness = spheres[spheres.size()-1].material.specularProbability = 1;
     spheres.emplace_back(glm::vec3(0.0, 0.0, -1030.0), 1000, RayTracingMaterials::darkGrey); //front
-    spheres[spheres.size()-1].material.smoothness = 1;
+    spheres[spheres.size()-1].material.smoothness = spheres[spheres.size()-1].material.specularProbability = 1;
     spheres.emplace_back(glm::vec3(1030.0, 0, 0.0), 1000, RayTracingMaterials::green); //right
-    spheres[spheres.size()-1].material.smoothness = 1;
+    spheres[spheres.size()-1].material.smoothness = spheres[spheres.size()-1].material.specularProbability = 1;
     spheres.emplace_back(glm::vec3(-1030.0, 0.0, 0.0), 1000, RayTracingMaterials::red); //left
-    spheres[spheres.size()-1].material.smoothness = 1;
+    spheres[spheres.size()-1].material.smoothness = spheres[spheres.size()-1].material.specularProbability = 1;
 
     spheres.emplace_back(glm::vec3(10.0, 0.0, 0.0), 8, RayTracingMaterials::yellow);
     spheres.emplace_back(glm::vec3(-10.0, 0.0, 0.0), 8, RayTracingMaterials::cyan);
@@ -115,6 +118,9 @@ void SceneAdvancedRayTracing::SetUniformSpheres(const std::string& name, std::ve
        glUniform3f(shader->getUniformLocation(name + "[" + std::to_string(i) + "].material.emissionColor"), array[i].material.emissionColor.x,array[i].material.emissionColor.y,array[i].material.emissionColor.z);
        glUniform1f(shader->getUniformLocation(name + "[" + std::to_string(i) + "].material.emissionStrength"), array[i].material.emissionStrength);
        glUniform1f(shader->getUniformLocation(name + "[" + std::to_string(i) + "].material.smoothness"), array[i].material.smoothness);
+       glUniform1f(shader->getUniformLocation(name + "[" + std::to_string(i) + "].material.specularProbability"), array[i].material.specularProbability);
+       glUniform1f(shader->getUniformLocation(name + "[" + std::to_string(i) + "].material.specularProbability"), array[i].material.specularProbability);
+       glUniform1i(shader->getUniformLocation(name + "[" + std::to_string(i) + "].material.isInvisibleLightSource"), array[i].material.isInvisibleLightSource);
    }
 }
 
@@ -155,14 +161,16 @@ void SceneAdvancedRayTracing::onImGuiRender() {
    ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
    if(selectedSphere != nullptr){
        createWidget(ImGui::SliderFloat("X",&selectedSphere->position.x,-50,50));
-       createWidget(ImGui::SliderFloat("Y",&selectedSphere->position.y,-20,50));
-       createWidget(ImGui::SliderFloat("Z",&selectedSphere->position.z,-20,50));
+       createWidget(ImGui::SliderFloat("Y",&selectedSphere->position.y,-50,50));
+       createWidget(ImGui::SliderFloat("Z",&selectedSphere->position.z,-50,50));
 
        createWidget(ImGui::InputFloat("Radius",&selectedSphere->radius,0.1f,1));
        createWidget(ImGui::ColorEdit3("Color", &selectedSphere->material.color.x));  //TODO this probably shouldn't be done like this
        createWidget(ImGui::ColorEdit3("Emission Color", &selectedSphere->material.emissionColor.x));
        createWidget(ImGui::InputFloat("Emission Strength",&selectedSphere->material.emissionStrength, 0.1f, 1));
        createWidget(ImGui::SliderFloat("Smoothness",&selectedSphere->material.smoothness, 0, 1));
+       createWidget(ImGui::SliderFloat("Specular probability",&selectedSphere->material.specularProbability, 0, 1));
+       createWidget(ImGui::SliderInt("Invisible light source",&selectedSphere->material.isInvisibleLightSource,0,1));
    }
 
    if (!ImGui::IsAnyItemActive()){

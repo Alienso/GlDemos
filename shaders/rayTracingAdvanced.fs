@@ -5,6 +5,8 @@ struct RayTracingMaterial{
     vec3 emissionColor;
     float emissionStrength;
     float smoothness;
+    float specularProbability;
+    int isInvisibleLightSource;
 };
 
 struct Sphere{
@@ -29,7 +31,7 @@ uniform int uResetBuffer;
 uniform sampler2D uPrevFrame;
 
 #define RAYS_PER_PIXEL 10
-#define MAX_BOUNCE 15
+#define MAX_BOUNCE 30
 
 vec3 GroundColour = vec3(0.35,0.3,0.35);
 vec3 SkyColourHorizon = vec3(1,1,1);
@@ -141,18 +143,20 @@ vec3 trace(Ray ray, inout uint state){
         HitInfo hitInfo = CalculateRayCollision(ray);
         if (hitInfo.didHit){
             ray.origin = hitInfo.hitPoint;
-            float smoothness = hitInfo.material.smoothness;
-            if (smoothness == 0){
-                ray.dir = normalize(hitInfo.normal + randomDirection(state));
-            }else if (smoothness >= 1){
+            if (hitInfo.material.isInvisibleLightSource == 1 && i == 0){
+			    ray.origin = hitInfo.hitPoint + ray.dir * 0.001;
+			    continue;
+			}
+
+            bool isSpecularBounce = hitInfo.material.specularProbability >= randomValue(state);
+            if (isSpecularBounce){
                 ray.dir = reflect(ray.dir, hitInfo.normal);
             }
             else{
                 vec3 diffuseDir = normalize(hitInfo.normal + randomDirection(state));
                 vec3 specularDir = reflect(ray.dir, hitInfo.normal);
-                ray.dir = mix(diffuseDir, specularDir,smoothness);
+                ray.dir = mix(diffuseDir, specularDir, hitInfo.material.smoothness);
             }
-            //ray.dir = randomHemisphereDirection(hitInfo.normal, state);
 
             vec3 emittedLight = hitInfo.material.emissionColor * hitInfo.material.emissionStrength;
             incomingLight += emittedLight * rayColor;
