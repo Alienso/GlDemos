@@ -22,6 +22,8 @@ out vec4 FragColor;
 uniform float uTime;
 uniform vec4 uMouse;
 uniform vec2 uResolution;
+uniform vec3 uCameraPos;
+uniform vec3 uCameraFocusPoint;
 
 uniform int uSphereCount;
 uniform uint uFramesRendered;
@@ -31,7 +33,7 @@ uniform int uResetBuffer;
 uniform sampler2D uPrevFrame;
 
 #define RAYS_PER_PIXEL 10
-#define MAX_BOUNCE 30
+#define MAX_BOUNCE 15
 
 vec3 GroundColour = vec3(0.35,0.3,0.35);
 vec3 SkyColourHorizon = vec3(1,1,1);
@@ -181,13 +183,13 @@ void main(){
     uv = uv * 2.0 - 1.0;//transform from [0,1] to [-1,1]
     uv.x *= iResolution.x / iResolution.y; //aspect fix
 
-    vec3 cameraPos = vec3(0,6.0,-25.0);//camera pos animation
-    vec3 cameraFocusPoint = vec3(0,0,0);//camera look target point animation
-    vec3 cameraDir = normalize(cameraFocusPoint - cameraPos);
+    vec3 cameraDir = uCameraFocusPoint;
+    //vec3 cameraFocusPoint = vec3(0.0,0.0,0.0);
+    //vec3 cameraDir = normalize(cameraFocusPoint - uCameraPos);
     vec3 rayDir = normalize(cameraDir + vec3(uv,0));
 
     Ray ray;
-    ray.origin = cameraPos;
+    ray.origin = uCameraPos;
     ray.dir = rayDir;
 
     //vec3 spherePos = vec3(0,0,-1);

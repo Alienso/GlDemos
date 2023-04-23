@@ -106,7 +106,6 @@ int main(int argc, char** argv) {
 
             glfwSwapBuffers(window);
         }
-
     }
 
     ImGui_ImplOpenGL3_Shutdown();

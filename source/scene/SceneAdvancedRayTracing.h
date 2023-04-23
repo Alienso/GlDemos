@@ -10,6 +10,7 @@
 #include "../core/UniformBuffer.h"
 #include "../util/Structs.h"
 #include "../core/FrameBuffer.h"
+#include "../Camera.h"
 
 class SceneAdvancedRayTracing : public Scene {
 public:
@@ -21,6 +22,7 @@ public:
 
 private:
     GLFWwindow* window;
+    Camera camera;
 
     Shader* shader;
     Shader* screenShader;
@@ -41,7 +43,9 @@ private:
     void setupSpheresReflectingWalls();
     void SetUniformSpheres(const std::string& name, std::vector<Sphere>& array);
 
+    void processMouseClick();
     void processMouseInput();
+    void processKeyboardInput(float deltaTime);
     void trace(double xPos, double yPos);
     float raySphere(glm::vec3& rayOrigin, glm::vec3& rayDir, glm::vec3& sphereCenter, float sphereRadius);
 

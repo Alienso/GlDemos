@@ -16,6 +16,9 @@ SceneAdvancedRayTracing::SceneAdvancedRayTracing(GLFWwindow* _window) : window(_
 
     shader = new Shader("rayTracingAdvanced.vs", "rayTracingAdvanced.fs");
     screenShader = new Shader("frameBuffer.vs", "frameBuffer.fs");
+    camera.pos = glm::vec3(0,6.0,-25.0);
+    camera.front = glm::vec3(0.0,-0.2334,0.97);
+    camera.yaw = -280;
 
     float vertices[] = {
             // positions   // texCoords
@@ -30,9 +33,9 @@ SceneAdvancedRayTracing::SceneAdvancedRayTracing(GLFWwindow* _window) : window(_
             2, 3, 0
     };
 
+    //setupSpheresBasic();
     //setupSpheresReflectingWalls();
-    //setupSpheresReflectingOrbs();
-    setupSpheresBasic();
+    setupSpheresReflectingOrbs();
 
     vb = new VertexBuffer(vertices, sizeof(vertices));
     layout = new VertexBufferLayout();
@@ -82,9 +85,9 @@ void SceneAdvancedRayTracing::setupSpheresReflectingOrbs() {
     spheres.emplace_back(glm::vec3(1030.0, 0, 0.0), 1000, RayTracingMaterials::green); //right
     spheres.emplace_back(glm::vec3(-1030.0, 0.0, 0.0), 1000, RayTracingMaterials::red); //left
 
-    spheres.emplace_back(glm::vec3(10.0, 0.0, 0.0), 8, RayTracingMaterials::yellow);
+    spheres.emplace_back(glm::vec3(10.0, 0.0, 0.0), 8, RayTracingMaterials::white);
     spheres[spheres.size()-1].material.smoothness = spheres[spheres.size()-1].material.specularProbability = 1;
-    spheres.emplace_back(glm::vec3(-10.0, 0.0, 0.0), 8, RayTracingMaterials::cyan);
+    spheres.emplace_back(glm::vec3(-10.0, 0.0, 0.0), 8, RayTracingMaterials::white);
     spheres[spheres.size()-1].material.smoothness = spheres[spheres.size()-1].material.specularProbability = 1;
 }
 
@@ -132,6 +135,8 @@ void SceneAdvancedRayTracing::onRender() {
    shader->setFloat("uTime", glfwGetTime());
    shader->setVec4("uMouse",0,0,0,1);
    shader->setVec2("uResolution",Configuration::wWidth,Configuration::wHeight);
+   shader->setVec3("uCameraPos", camera.pos);
+   shader->setVec3("uCameraFocusPoint", camera.front);
 
    shader->setInt("uSphereCount", spheres.size());
    SetUniformSpheres("uSpheres", spheres);
@@ -150,7 +155,9 @@ void SceneAdvancedRayTracing::onRender() {
 }
 
 void SceneAdvancedRayTracing::onUpdate(float deltaTime) {
-   //processMouseInput(); //todo temp moved to onImGuiRender
+   //processMouseClick(); //todo temp moved to onImGuiRender
+   //processMouseInput();
+   processKeyboardInput(deltaTime);
    resetFrameBuffer = 0;
 }
 
@@ -174,7 +181,7 @@ void SceneAdvancedRayTracing::onImGuiRender() {
    }
 
    if (!ImGui::IsAnyItemActive()){
-       processMouseInput();
+       processMouseClick();
    }
 
    ImGui::End();
@@ -195,13 +202,10 @@ void SceneAdvancedRayTracing::trace(double xPos, double yPos){
    uv = uv * glm::vec2(2.0) - glm::vec2(1.0);//transform from [0,1] to [-1,1]
    uv.x *= (float)(Configuration::wWidth)/(float)Configuration::wHeight; //aspect fix
 
-   glm::vec3 cameraPos = glm::vec3(0,6.0,-25.0);
-   glm::vec3 cameraFocusPoint = glm::vec3(0,0,0);
-   glm::vec3 cameraDir = normalize(cameraFocusPoint - cameraPos);
-   glm::vec3 rayDir = normalize(cameraDir + glm::vec3(uv.x,uv.y,0));
+   glm::vec3 rayDir = normalize(camera.front + glm::vec3(uv.x,uv.y,0));
 
    for (int i=0; i< spheres.size(); i++){
-       float dist = raySphere(cameraPos, rayDir, spheres[i].position, spheres[i].radius);
+       float dist = raySphere(camera.pos, rayDir, spheres[i].position, spheres[i].radius);
 
        if (dist >= 0 && dist < minDist){
            selectedSphere = &(spheres[i]);
@@ -230,7 +234,7 @@ float SceneAdvancedRayTracing::raySphere(glm::vec3& rayOrigin, glm::vec3& rayDir
    return ret;
 }
 
-void SceneAdvancedRayTracing::processMouseInput(){
+void SceneAdvancedRayTracing::processMouseClick(){
    if (ImGui::IsAnyItemActive())
        return;
    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS){
@@ -238,4 +242,75 @@ void SceneAdvancedRayTracing::processMouseInput(){
        glfwGetCursorPos(window, &xpos, &ypos);
        trace(xpos,Configuration::wHeight - ypos);
    }
+}
+
+void SceneAdvancedRayTracing::processKeyboardInput(float deltaTime) {
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+        glfwSetWindowShouldClose(window,true);
+    }
+
+    glm::vec3 oldPos = camera.pos;
+    float cameraSpeed = static_cast<float>(20 * deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        camera.pos += cameraSpeed * camera.front;
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        camera.pos -= cameraSpeed * camera.front;
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        camera.pos -= glm::normalize(glm::cross(camera.front, camera.up)) * cameraSpeed;
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        camera.pos += glm::normalize(glm::cross(camera.front, camera.up)) * cameraSpeed;
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+        camera.pos += cameraSpeed * glm::vec3(0.0f,1.0f,0.0f);
+    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+        camera.pos += cameraSpeed * glm::vec3(0.0f,-1.0f,0.0f);
+
+    if (oldPos != camera.pos){
+        resetFrameBuffer = 1;
+        framesRendered = 0;
+    }
+}
+
+void SceneAdvancedRayTracing::processMouseInput() {
+
+    double xposIn,yposIn;
+    glfwGetCursorPos(window,&xposIn,&yposIn);
+
+    float xpos = static_cast<float>(xposIn);
+    float ypos = static_cast<float>(yposIn);
+
+    if (camera.firstMouse){
+        camera.lastPos[0] = xpos;
+        camera.lastPos[1] = ypos;
+        camera.firstMouse = false;
+    }
+
+    float xoffset = xpos - camera.lastPos[0];
+    float yoffset = camera.lastPos[1] - ypos;
+    camera.lastPos[0] = xpos;
+    camera.lastPos[1] = ypos;
+
+    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_1) != GLFW_PRESS){
+        return;
+    }
+
+    float sensitivity = 0.5f;
+    xoffset *= sensitivity;
+    yoffset *= sensitivity;
+
+    camera.yaw += xoffset;
+    camera.pitch += yoffset;
+
+    if (camera.pitch > 89.0f)
+        camera.pitch = 89.0f;
+    if (camera.pitch < -89.0f)
+        camera.pitch = -89.0f;
+
+    glm::vec3 front;
+    front.x = cos(glm::radians(camera.yaw)) * cos(glm::radians(camera.pitch));
+    front.y = sin(glm::radians(camera.pitch));
+    front.z = sin(glm::radians(camera.yaw)) * cos(glm::radians(camera.pitch));
+    camera.front = glm::normalize(front);
+
+    resetFrameBuffer = 1;
+    framesRendered = 0;
 }
