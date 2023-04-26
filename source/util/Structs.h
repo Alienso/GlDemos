@@ -29,5 +29,26 @@ struct Sphere{
     Sphere(glm::vec3 _position, float _radius, RayTracingMaterial _material) : position(_position), radius(_radius), material(_material){}
 };
 
+struct Triangle{ //openGL packs vec3's as vec4's so we need the same memory layout here
+    alignas(16) glm::vec3 posA, posB, posC;
+    alignas(16) glm::vec3 normalA, normalB, normalC;
+
+    Triangle(){}
+    Triangle(glm::vec3 _posA,glm::vec3 _posB, glm::vec3 _posC, glm::vec3 _normalA, glm::vec3 _normalB, glm::vec3 _normalC)
+    : posA(_posA), posB(_posB), posC(_posC), normalA(_normalA), normalB(_normalB), normalC(_normalC){};
+};
+
+struct MeshInfo{
+    int firstTriangleIndex;
+    int numTriangles;
+    RayTracingMaterial material;
+    glm::vec3 boundsMin;
+    glm::vec3 boundsMax;
+
+    MeshInfo(){}
+    MeshInfo(int _firstTriangleIndex, int _numTriangles, RayTracingMaterial _rayTracingMaterial, glm::vec3 _boundsMin, glm::vec3 _boundsMax) :
+    firstTriangleIndex(_firstTriangleIndex), numTriangles(_numTriangles), material(_rayTracingMaterial), boundsMin(_boundsMin), boundsMax(_boundsMax) {}
+};
+
 
 #endif //GRASSTERRAIN_STRUCTS_H

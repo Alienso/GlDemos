@@ -35,7 +35,8 @@ SceneAdvancedRayTracing::SceneAdvancedRayTracing(GLFWwindow* _window) : window(_
 
     //setupSpheresBasic();
     //setupSpheresReflectingWalls();
-    setupSpheresReflectingOrbs();
+    //setupSpheresReflectingOrbs();
+    setupModel();
 
     vb = new VertexBuffer(vertices, sizeof(vertices));
     layout = new VertexBufferLayout();
@@ -45,6 +46,7 @@ SceneAdvancedRayTracing::SceneAdvancedRayTracing(GLFWwindow* _window) : window(_
     va->addBuffer(*vb, *layout);
     ib = new IndexBuffer(indices, 6);
     fb = new FrameBuffer();
+    ssb = new ShaderStorageBuffer((void*)&((mesh->triangles)[0]), (mesh->triangles).size() * sizeof(Triangle));
 
 }
 
@@ -56,6 +58,7 @@ SceneAdvancedRayTracing::~SceneAdvancedRayTracing() {
     free(layout);
     free(ib);
     free(fb);
+    free(ssb);
 
     glDisable( GL_TEXTURE_2D );
 }
@@ -112,6 +115,21 @@ void SceneAdvancedRayTracing::setupSpheresReflectingWalls() {
     spheres.emplace_back(glm::vec3(-10.0, 0.0, 0.0), 8, RayTracingMaterials::cyan);
 }
 
+void SceneAdvancedRayTracing::setupModel() {
+    spheres.emplace_back(glm::vec3(-120, 80, 50), 35.0, RayTracingMaterials::white);
+    spheres[0].material.emissionStrength = 10; //this is the sun
+
+    spheres.emplace_back(glm::vec3(0.0, -1030.0, 0.0), 1000, RayTracingMaterials::lightBlue); //bottom
+
+    Mesh* base = new Mesh("rifle.obj");
+    mesh = base->transform(glm::vec3(-10,0,-15),0.5f,glm::vec3(0,90,0));
+    free(base);
+
+    glm::vec3 tmp(0,0,0);
+    MeshInfo meshInfo(0,mesh->triangles.size(),RayTracingMaterials::white, tmp, tmp);
+    meshArray.push_back(meshInfo);
+}
+
 void SceneAdvancedRayTracing::SetUniformSpheres(const std::string& name, std::vector<Sphere>& array){
    for (int i=0; i<spheres.size(); i++){
        glUniform3f(shader->getUniformLocation(name + "[" + std::to_string(i) + "].position"),array[i].position.x, array[i].position.y, array[i].position.z);
@@ -127,31 +145,66 @@ void SceneAdvancedRayTracing::SetUniformSpheres(const std::string& name, std::ve
    }
 }
 
+void SceneAdvancedRayTracing::setUniformMeshInfo(std::vector<MeshInfo>& meshInfo) {
+    for (int i=0; i<meshInfo.size(); i++){
+        glUniform1i(shader->getUniformLocation("uMeshInfo[" + std::to_string(i) + "].firstTriangleIndex"), meshInfo[i].firstTriangleIndex);
+        glUniform1i(shader->getUniformLocation("uMeshInfo[" + std::to_string(i) + "].numTriangles"), meshInfo[i].numTriangles);
+
+        glUniform4f(shader->getUniformLocation("uMeshInfo[" + std::to_string(i) + "].material.color"), meshInfo[i].material.color.x,meshInfo[i].material.color.y,meshInfo[i].material.color.z,meshInfo[i].material.color.w);
+        glUniform3f(shader->getUniformLocation("uMeshInfo[" + std::to_string(i) + "].material.emissionColor"), meshInfo[i].material.emissionColor.x,meshInfo[i].material.emissionColor.y,meshInfo[i].material.emissionColor.z);
+        glUniform1f(shader->getUniformLocation("uMeshInfo[" + std::to_string(i) + "].material.emissionStrength"), meshInfo[i].material.emissionStrength);
+        glUniform1f(shader->getUniformLocation("uMeshInfo[" + std::to_string(i) + "].material.smoothness"), meshInfo[i].material.smoothness);
+        glUniform1f(shader->getUniformLocation("uMeshInfo[" + std::to_string(i) + "].material.specularProbability"), meshInfo[i].material.specularProbability);
+        glUniform1f(shader->getUniformLocation("uMeshInfo[" + std::to_string(i) + "].material.specularProbability"), meshInfo[i].material.specularProbability);
+        glUniform1i(shader->getUniformLocation("uMeshInfo[" + std::to_string(i) + "].material.isInvisibleLightSource"), meshInfo[i].material.isInvisibleLightSource);
+
+        glUniform3f(shader->getUniformLocation("uMeshInfo[" + std::to_string(i) + "].boundsMin"), meshInfo[i].boundsMin.x,meshInfo[i].boundsMin.y,meshInfo[i].boundsMin.z);
+        glUniform3f(shader->getUniformLocation("uMeshInfo[" + std::to_string(i) + "].boundsMax"), meshInfo[i].boundsMax.x,meshInfo[i].boundsMax.y,meshInfo[i].boundsMax.z);
+    }
+}
+
+/*void SceneAdvancedRayTracing::setUniformTriangles(std::vector<Triangle>& triangles) {
+    for (int i=0; i<triangles.size(); i++){
+        glUniform3f(shader->getUniformLocation("uTriangles[" + std::to_string(i) + "].posA"), triangles[i].posA.x, triangles[i].posA.y, triangles[i].posA.z);
+        glUniform3f(shader->getUniformLocation("uTriangles[" + std::to_string(i) + "].posB"), triangles[i].posB.x, triangles[i].posB.y, triangles[i].posB.z);
+        glUniform3f(shader->getUniformLocation("uTriangles[" + std::to_string(i) + "].posC"), triangles[i].posC.x, triangles[i].posC.y, triangles[i].posC.z);
+
+        glUniform3f(shader->getUniformLocation("uTriangles[" + std::to_string(i) + "].normalA"), triangles[i].normalA.x, triangles[i].normalA.y, triangles[i].normalA.z);
+        glUniform3f(shader->getUniformLocation("uTriangles[" + std::to_string(i) + "].normalB"), triangles[i].normalB.x, triangles[i].normalB.y, triangles[i].normalB.z);
+        glUniform3f(shader->getUniformLocation("uTriangles[" + std::to_string(i) + "].normalC"), triangles[i].normalC.x, triangles[i].normalC.y, triangles[i].normalC.z);
+    }
+}*/
+
 void SceneAdvancedRayTracing::onRender() {
 
-   shader->use();
-   fb->bind();
+    shader->use();
+    fb->bind();
 
-   shader->setFloat("uTime", glfwGetTime());
-   shader->setVec4("uMouse",0,0,0,1);
-   shader->setVec2("uResolution",Configuration::wWidth,Configuration::wHeight);
-   shader->setVec3("uCameraPos", camera.pos);
-   shader->setVec3("uCameraFocusPoint", camera.front);
+    shader->setFloat("uTime", glfwGetTime());
+    shader->setVec4("uMouse",0,0,0,1);
+    shader->setVec2("uResolution",Configuration::wWidth,Configuration::wHeight);
+    shader->setVec3("uCameraPos", camera.pos);
+    shader->setVec3("uCameraFocusPoint", camera.front);
 
-   shader->setInt("uSphereCount", spheres.size());
-   SetUniformSpheres("uSpheres", spheres);
-   shader->setUInt("uFramesRendered", framesRendered);
-   screenShader->setInt("uResetBuffer",resetFrameBuffer);
+    shader->setInt("uSphereCount", spheres.size());
+    SetUniformSpheres("uSpheres", spheres);
+    shader->setUInt("uFramesRendered", framesRendered);
+    shader->setInt("uResetBuffer", resetFrameBuffer);
 
-   renderer.draw(*va,*ib,*shader);
+    shader->setInt("uMeshCount",1);
+    setUniformMeshInfo(meshArray);
 
-   fb->unbind();
-   fb->bindTexture();
-   screenShader->use();
+    ssb->bind();
 
-   renderer.draw(*va, *ib, *screenShader);
+    renderer.draw(*va,*ib,*shader);
 
-   framesRendered++;
+    fb->unbind();
+    fb->bindTexture();
+    screenShader->use();
+
+    renderer.draw(*va, *ib, *screenShader);
+
+    framesRendered++;
 }
 
 void SceneAdvancedRayTracing::onUpdate(float deltaTime) {
@@ -172,12 +225,28 @@ void SceneAdvancedRayTracing::onImGuiRender() {
        createWidget(ImGui::SliderFloat("Z",&selectedSphere->position.z,-50,50));
 
        createWidget(ImGui::InputFloat("Radius",&selectedSphere->radius,0.1f,1));
-       createWidget(ImGui::ColorEdit3("Color", &selectedSphere->material.color.x));  //TODO this probably shouldn't be done like this
+       createWidget(ImGui::ColorEdit3("Color", &selectedSphere->material.color.x));
        createWidget(ImGui::ColorEdit3("Emission Color", &selectedSphere->material.emissionColor.x));
        createWidget(ImGui::InputFloat("Emission Strength",&selectedSphere->material.emissionStrength, 0.1f, 1));
        createWidget(ImGui::SliderFloat("Smoothness",&selectedSphere->material.smoothness, 0, 1));
        createWidget(ImGui::SliderFloat("Specular probability",&selectedSphere->material.specularProbability, 0, 1));
        createWidget(ImGui::SliderInt("Invisible light source",&selectedSphere->material.isInvisibleLightSource,0,1));
+   }
+
+   if (selectedTriangle != nullptr){
+       createWidget(ImGui::SliderFloat("PosA X",&selectedTriangle->posA.x,-50,50));
+       createWidget(ImGui::SliderFloat("PosA Y",&selectedTriangle->posA.y,-50,50));
+       createWidget(ImGui::SliderFloat("PosA Z",&selectedTriangle->posA.z,-50,50));
+
+       createWidget(ImGui::SliderFloat("PosB X",&selectedTriangle->posB.x,-50,50));
+       createWidget(ImGui::SliderFloat("PosB Y",&selectedTriangle->posB.y,-50,50));
+       createWidget(ImGui::SliderFloat("PosB Z",&selectedTriangle->posB.z,-50,50));
+
+       createWidget(ImGui::SliderFloat("PosC X",&selectedTriangle->posC.x,-50,50));
+       createWidget(ImGui::SliderFloat("PosC Y",&selectedTriangle->posC.y,-50,50));
+       createWidget(ImGui::SliderFloat("PosC Z",&selectedTriangle->posC.z,-50,50));
+
+       //TODO FIX NORMALS
    }
 
    if (!ImGui::IsAnyItemActive()){
@@ -209,9 +278,29 @@ void SceneAdvancedRayTracing::trace(double xPos, double yPos){
 
        if (dist >= 0 && dist < minDist){
            selectedSphere = &(spheres[i]);
+           selectedTriangle = nullptr;
            minDist = dist;
        }
    }
+
+    /*for (int meshIndex = 0; meshIndex < meshArray.size(); meshIndex ++) {
+        MeshInfo meshInfo = meshArray[meshIndex];
+        //if (!RayBoundingBox(ray, meshInfo.boundsMin, meshInfo.boundsMax)) {
+        //    continue;
+        //}
+
+        for (int i = 0; i < meshInfo.numTriangles; i++) {
+            int triIndex = meshInfo.firstTriangleIndex + i;
+            Triangle* tri = &triangleArr[triIndex];
+            float dist = rayTriangle(camera.pos, rayDir, *tri);
+
+            if (dist >= 0 && dist < minDist) {
+                minDist = dist;
+                selectedSphere = nullptr;
+                selectedTriangle = tri;
+            }
+        }
+    }*/
 }
 
 float SceneAdvancedRayTracing::raySphere(glm::vec3& rayOrigin, glm::vec3& rayDir, glm::vec3& sphereCenter, float sphereRadius){
@@ -232,6 +321,33 @@ float SceneAdvancedRayTracing::raySphere(glm::vec3& rayOrigin, glm::vec3& rayDir
        }
    }
    return ret;
+}
+
+float SceneAdvancedRayTracing::rayTriangle(glm::vec3& rayOrigin, glm::vec3& rayDir, Triangle tri){
+    /*glm::vec3 edgeAB = tri.posB - tri.posA;
+    glm::vec3 edgeAC = tri.posC - tri.posA;
+    glm::vec3 normalVector = cross(edgeAB, edgeAC);
+    glm::vec3 ao = rayOrigin - tri.posA;
+    glm::vec3 dao = cross(ao, rayDir);
+
+    float determinant = -dot(rayDir, normalVector);
+    float invDet = 1 / determinant;
+
+    // Calculate dst to triangle & barycentric coordinates of intersection point
+    float dst = dot(ao, normalVector) * invDet;
+    float u = dot(edgeAC, dao) * invDet;
+    float v = -dot(edgeAB, dao) * invDet;
+    float w = 1 - u - v;
+
+    // Initialize hit info
+    bool didHit = determinant >= 1E-6 && dst >= 0 && u >= 0 && v >= 0 && w >= 0;
+    glm::vec3 hitPoint = rayOrigin + rayDir * dst;
+    glm::vec3 normal = normalize(tri.normalA * w + tri.normalB * u + tri.normalC * v);
+    float dist = dst;
+    if (didHit)
+        return dist;
+    else return 99999;*/
+    return 0;
 }
 
 void SceneAdvancedRayTracing::processMouseClick(){

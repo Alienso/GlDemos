@@ -15,33 +15,18 @@ struct Sphere{
     RayTracingMaterial material;
 };
 
-in vec2 TexCoords;
+struct Triangle{
+    vec3 posA, posB, posC;
+    vec3 normalA, normalB, normalC;
+};
 
-out vec4 FragColor;
-
-uniform float uTime;
-uniform vec4 uMouse;
-uniform vec2 uResolution;
-uniform vec3 uCameraPos;
-uniform vec3 uCameraFocusPoint;
-
-uniform int uSphereCount;
-uniform uint uFramesRendered;
-uniform Sphere uSpheres[10];
-
-uniform int uResetBuffer;
-uniform sampler2D uPrevFrame;
-
-#define RAYS_PER_PIXEL 10
-#define MAX_BOUNCE 15
-
-vec3 GroundColour = vec3(0.35,0.3,0.35);
-vec3 SkyColourHorizon = vec3(1,1,1);
-vec3 SkyColourZenith = vec3(0.08,0.36,0.72);
-float SunFocus = 50;
-float SunIntensity = 20;
-
-//--scene data---------------------------------------------------------------------
+struct MeshInfo{
+    int firstTriangleIndex;
+    int numTriangles;
+    RayTracingMaterial material;
+    vec3 boundsMin;
+    vec3 boundsMax;
+};
 
 struct Ray{
     vec3 origin;
@@ -55,6 +40,42 @@ struct HitInfo{
     vec3 normal;
     RayTracingMaterial material;
 };
+
+in vec2 TexCoords;
+
+out vec4 FragColor;
+
+uniform float uTime;
+uniform vec4 uMouse;
+uniform vec2 uResolution;
+uniform vec3 uCameraPos;
+uniform vec3 uCameraFocusPoint;
+uniform uint uFramesRendered;
+
+uniform MeshInfo uMeshInfo[10];
+uniform int uMeshCount;
+
+uniform Sphere uSpheres[10];
+uniform int uSphereCount;
+
+uniform int uResetBuffer;
+uniform sampler2D uPrevFrame;
+
+layout(std430, binding = 3) buffer vertex_buffer
+{
+    Triangle bTriangles[];
+};
+
+#define RAYS_PER_PIXEL 1
+#define MAX_BOUNCE 2
+
+vec3 GroundColour = vec3(0.35,0.3,0.35);
+vec3 SkyColourHorizon = vec3(1,1,1);
+vec3 SkyColourZenith = vec3(0.08,0.36,0.72);
+float SunFocus = 50;
+float SunIntensity = 20;
+
+//--scene data---------------------------------------------------------------------
 
 HitInfo RaySphere(Ray ray, vec3 sphereCenter, float sphereRadius){
     HitInfo hitInfo;
@@ -70,21 +91,62 @@ HitInfo RaySphere(Ray ray, vec3 sphereCenter, float sphereRadius){
     //if discriminant is < 0, then we didnt hit the circle
     if (discriminant >= 0){
         float dist = (-b - sqrt(discriminant)) / (2 * a);
-        if (dist > 0){
-            hitInfo.didHit = true;
-            hitInfo.dist = dist;
-            hitInfo.hitPoint = ray.origin + ray.dir * dist;
-            hitInfo.normal = normalize(hitInfo.hitPoint - sphereCenter);
-        }
+        dist = max(0,dist);
+        //if (dist > 0){
+        //    hitInfo.didHit = true;
+        //    hitInfo.dist = dist;
+        //    hitInfo.hitPoint = ray.origin + ray.dir * dist;
+        //    hitInfo.normal = normalize(hitInfo.hitPoint - sphereCenter);
+        //}
+        hitInfo.didHit = (dist > 0);
+        hitInfo.dist = dist;
+        hitInfo.hitPoint = ray.origin + ray.dir * dist;
+        hitInfo.normal = normalize(hitInfo.hitPoint - sphereCenter);
     }
 
     return hitInfo;
 }
 
+HitInfo RayTriangle(Ray ray, Triangle tri){
+    vec3 edgeAB = tri.posB - tri.posA;
+    vec3 edgeAC = tri.posC - tri.posA;
+    vec3 normalVector = cross(edgeAB, edgeAC);
+    vec3 ao = ray.origin - tri.posA;
+    vec3 dao = cross(ao, ray.dir);
+
+    float determinant = -dot(ray.dir, normalVector);
+    float invDet = 1 / determinant;
+
+    // Calculate dst to triangle & barycentric coordinates of intersection point
+    float dst = dot(ao, normalVector) * invDet;
+    float u = dot(edgeAC, dao) * invDet;
+    float v = -dot(edgeAB, dao) * invDet;
+    float w = 1 - u - v;
+
+    // Initialize hit info
+    HitInfo hitInfo;
+    hitInfo.didHit = determinant >= 1E-6 && dst >= 0 && u >= 0 && v >= 0 && w >= 0;
+    hitInfo.hitPoint = ray.origin + ray.dir * dst;
+    hitInfo.normal = normalize(tri.normalA * w + tri.normalB * u + tri.normalC * v);
+    hitInfo.dist = dst;
+    return hitInfo;
+}
+
+bool RayBoundingBox(Ray ray, vec3 boxMin, vec3 boxMax){
+    vec3 invDir = 1 / ray.dir;
+    vec3 tMin = (boxMin - ray.origin) * invDir;
+    vec3 tMax = (boxMax - ray.origin) * invDir;
+    vec3 t1 = min(tMin, tMax);
+    vec3 t2 = max(tMin, tMax);
+    float tNear = max(max(t1.x, t1.y), t1.z);
+    float tFar = min(min(t2.x, t2.y), t2.z);
+    return tNear <= tFar;
+}
+
 HitInfo CalculateRayCollision(Ray ray){
     HitInfo closest;
-    //TODO init
     closest.dist = 99999;
+    closest.didHit = false;
 
     for (int i=0; i< uSphereCount; i++){
         Sphere sphere = uSpheres[i];
@@ -95,6 +157,25 @@ HitInfo CalculateRayCollision(Ray ray){
             closest.material = sphere.material;
         }
     }
+
+    for (int meshIndex = 0; meshIndex < uMeshCount; meshIndex++){
+        MeshInfo meshInfo = uMeshInfo[meshIndex];
+    	//if (!RayBoundingBox(ray, meshInfo.boundsMin, meshInfo.boundsMax)) {
+    	//    continue;
+    	//}
+
+    	for (int i = 0; i < meshInfo.numTriangles; i++) {
+    	    int triIndex = meshInfo.firstTriangleIndex + i;
+    		Triangle tri = bTriangles[triIndex];
+    		HitInfo hitInfo = RayTriangle(ray, tri);
+
+    		if (hitInfo.didHit && hitInfo.dist < closest.dist){
+                closest = hitInfo;
+                closest.material = meshInfo.material;
+            }
+    	}
+    }
+
     return closest;
 }
 
@@ -150,22 +231,25 @@ vec3 trace(Ray ray, inout uint state){
 			    continue;
 			}
 
+            ray.origin = hitInfo.hitPoint;
             bool isSpecularBounce = hitInfo.material.specularProbability >= randomValue(state);
-            if (isSpecularBounce){
-                ray.dir = reflect(ray.dir, hitInfo.normal);
-            }
-            else{
-                vec3 diffuseDir = normalize(hitInfo.normal + randomDirection(state));
-                vec3 specularDir = reflect(ray.dir, hitInfo.normal);
-                ray.dir = mix(diffuseDir, specularDir, hitInfo.material.smoothness);
-            }
+            vec3 diffuseDir = normalize(hitInfo.normal + randomDirection(state));
+            vec3 specularDir = reflect(ray.dir, hitInfo.normal);
+            ray.dir = mix(diffuseDir, specularDir, hitInfo.material.smoothness * int(isSpecularBounce));
 
             vec3 emittedLight = hitInfo.material.emissionColor * hitInfo.material.emissionStrength;
             incomingLight += emittedLight * rayColor;
             rayColor*= hitInfo.material.color.xyz;
+
+            // Random early exit if ray colour is nearly 0 (can't contribute much to final result)
+            //float p = max(rayColor.r, max(rayColor.g, rayColor.b));
+            //if (randomValue(state) >= p) {
+            //    break;
+            //}
+            //rayColor *= 1.0f / p;
         }
         else{
-            incomingLight += getEnvironmentLight(ray) * rayColor;
+            //incomingLight += getEnvironmentLight(ray) * rayColor;
             break;
         }
     }
@@ -230,8 +314,8 @@ void main(){
     //FragColor = vec4(incomingLight,1);
 
 
-    //if (uSpheres[2].position.x == 0 && uSpheres[2].position.y == -1002 && uSpheres[2].position.z == 0){
-    //if (uSpheres[2].material.emissionStrength == 1){
+    //if (data[0].posA.x == 0 && data[0].posA.y == 0 && data[0].posA.z == -15){
+    //if (uMeshInfo[0].material.color.x == 0){
     //    FragColor = vec4(1.0,0.0,0.0,1.0);
     //}
     //else{
