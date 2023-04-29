@@ -20,7 +20,8 @@
 #include "source/scene/SceneRandomWorldGen.h"
 #include "source/scene/SceneMemoryAllocate.h"
 #include "source/scene/SceneAdvancedRayTracing.h"
-#include "source/util/RayTracingMaterials.h"
+#include "source/scene/rayTracing/RayTracingMaterials.h"
+#include "source/util/Profiler.h"
 
 void GLAPIENTRY glErrorCallback( GLenum source,
                  GLenum type,
@@ -58,7 +59,7 @@ int main(int argc, char** argv) {
     }
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-    glfwSwapInterval(1);
+    glfwSwapInterval(0);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)){
         std::cout << "Failed to initialize GLAD" << std::endl;
@@ -84,13 +85,14 @@ int main(int argc, char** argv) {
     //SceneMemoryAllocate scene(atoi(argv[1]));
     SceneAdvancedRayTracing scene(window);
 
-    //printf("Hello!");
+    printf("Hello!");
     //printf("Hello!");
 
     float lastTime = glfwGetTime();
     {
         while (!glfwWindowShouldClose(window)) {
 
+            PROFILE_SCOPE("mainLoop");
             glfwPollEvents();
             scene.onUpdate(glfwGetTime() - lastTime);
             lastTime = glfwGetTime();

@@ -5,7 +5,7 @@
 #ifndef GRASSTERRAIN_RAYTRACINGMATERIALS_H
 #define GRASSTERRAIN_RAYTRACINGMATERIALS_H
 
-#include "../scene/SceneAdvancedRayTracing.h"
+#include "../SceneAdvancedRayTracing.h"
 
 class RayTracingMaterials {
 public:

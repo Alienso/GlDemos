@@ -6,7 +6,7 @@
 #define GRASSTERRAIN_MESH_H
 
 #include "glm/glm.hpp"
-#include "../util/Structs.h"
+#include "../scene/rayTracing/structs.h"
 #include <vector>
 
 class Mesh {

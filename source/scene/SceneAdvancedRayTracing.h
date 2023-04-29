@@ -8,7 +8,7 @@
 
 #include "Scene.h"
 #include "../core/UniformBuffer.h"
-#include "../util/Structs.h"
+#include "rayTracing/structs.h"
 #include "../core/FrameBuffer.h"
 #include "../Camera.h"
 #include "../core/ShaderStorageBuffer.h"
@@ -51,7 +51,7 @@ private:
     void setupSpheresReflectingOrbs();
     void setupSpheresReflectingWalls();
     void setupModel();
-    void SetUniformSpheres(const std::string& name, std::vector<Sphere>& array);
+    void SetUniformSpheres(std::vector<Sphere>& array);
 
     void processMouseClick();
     void processMouseInput();

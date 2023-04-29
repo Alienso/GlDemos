@@ -3,6 +3,9 @@ project(grassTerrain)
 
 set(CMAKE_CXX_STANDARD 14)
 
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
+
 include_directories(${PROJECT_SOURCE_DIR}/lib/GLFW/include/)
 include_directories(${PROJECT_SOURCE_DIR}/lib/)
 
@@ -27,7 +30,7 @@ add_executable(grassTerrain main.cpp
         source/core/Texture.cpp source/core/Texture.h
         source/gen/PerlinNoise.cpp source/gen/PerlinNoise.h
         source/gen/MapGen.cpp source/gen/MapGen.h
-        source/scene/Scene.cpp source/scene/Scene.h source/scene/SceneTexture.cpp source/scene/SceneTexture.h source/scene/SceneTriangle.cpp source/scene/SceneTriangle.h source/scene/SceneRayTracing.cpp source/scene/SceneRayTracing.h source/scene/Scene3D.cpp source/scene/Scene3D.h source/Configuration.h source/Camera.cpp source/Camera.h source/Configuration.cpp source/shapes/Circle.cpp source/shapes/Circle.h source/shapes/Shape.cpp source/shapes/Shape.h source/shapes/Axes3D.cpp source/shapes/Axes3D.h source/scene/SceneRandomWorldGen.cpp source/scene/SceneRandomWorldGen.h source/scene/SceneMemoryAllocate.cpp source/scene/SceneMemoryAllocate.h source/scene/SceneAdvancedRayTracing.cpp source/scene/SceneAdvancedRayTracing.h source/core/UniformBuffer.cpp source/core/UniformBuffer.h source/util/RayTracingMaterials.cpp source/util/RayTracingMaterials.h source/util/Structs.h source/core/FrameBuffer.cpp source/core/FrameBuffer.h source/core/Mesh.cpp source/core/Mesh.h source/core/ShaderStorageBuffer.cpp source/core/ShaderStorageBuffer.h)
+        source/scene/Scene.cpp source/scene/Scene.h source/scene/SceneTexture.cpp source/scene/SceneTexture.h source/scene/SceneTriangle.cpp source/scene/SceneTriangle.h source/scene/SceneRayTracing.cpp source/scene/SceneRayTracing.h source/scene/Scene3D.cpp source/scene/Scene3D.h source/Configuration.h source/Camera.cpp source/Camera.h source/Configuration.cpp source/shapes/Circle.cpp source/shapes/Circle.h source/shapes/Shape.cpp source/shapes/Shape.h source/shapes/Axes3D.cpp source/shapes/Axes3D.h source/scene/SceneRandomWorldGen.cpp source/scene/SceneRandomWorldGen.h source/scene/SceneMemoryAllocate.cpp source/scene/SceneMemoryAllocate.h source/scene/SceneAdvancedRayTracing.cpp source/scene/SceneAdvancedRayTracing.h source/core/UniformBuffer.cpp source/core/UniformBuffer.h source/scene/rayTracing/RayTracingMaterials.cpp source/scene/rayTracing/RayTracingMaterials.h source/scene/rayTracing/structs.h source/core/FrameBuffer.cpp source/core/FrameBuffer.h source/core/Mesh.cpp source/core/Mesh.h source/core/ShaderStorageBuffer.cpp source/core/ShaderStorageBuffer.h source/util/Profiler.cpp source/util/Profiler.h source/scene/rayTracing/setup.cpp source/scene/rayTracing/sceneTrace.cpp)
 
 target_link_libraries(grassTerrain glfw3 gdi32 opengl32)
 

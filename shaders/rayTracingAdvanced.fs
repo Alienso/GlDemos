@@ -7,6 +7,8 @@ struct RayTracingMaterial{
     float smoothness;
     float specularProbability;
     int isInvisibleLightSource;
+    float transparency;
+    float refractionIndex;
 };
 
 struct Sphere{
@@ -39,6 +41,7 @@ struct HitInfo{
     vec3 hitPoint;
     vec3 normal;
     RayTracingMaterial material;
+    int sphereIndex;
 };
 
 in vec2 TexCoords;
@@ -61,13 +64,13 @@ uniform int uSphereCount;
 uniform int uResetBuffer;
 uniform sampler2D uPrevFrame;
 
-layout(std430, binding = 3) buffer vertex_buffer
+layout(std430, binding = 3) readonly buffer vertex_buffer
 {
     Triangle bTriangles[];
 };
 
-#define RAYS_PER_PIXEL 1
-#define MAX_BOUNCE 2
+#define RAYS_PER_PIXEL 10
+#define MAX_BOUNCE 10
 
 vec3 GroundColour = vec3(0.35,0.3,0.35);
 vec3 SkyColourHorizon = vec3(1,1,1);
@@ -147,6 +150,7 @@ HitInfo CalculateRayCollision(Ray ray){
     HitInfo closest;
     closest.dist = 99999;
     closest.didHit = false;
+    closest.sphereIndex = -1;
 
     for (int i=0; i< uSphereCount; i++){
         Sphere sphere = uSpheres[i];
@@ -155,6 +159,7 @@ HitInfo CalculateRayCollision(Ray ray){
         if (hitInfo.didHit && hitInfo.dist < closest.dist){
             closest = hitInfo;
             closest.material = sphere.material;
+            closest.sphereIndex = i;
         }
     }
 
@@ -231,25 +236,36 @@ vec3 trace(Ray ray, inout uint state){
 			    continue;
 			}
 
-            ray.origin = hitInfo.hitPoint;
-            bool isSpecularBounce = hitInfo.material.specularProbability >= randomValue(state);
-            vec3 diffuseDir = normalize(hitInfo.normal + randomDirection(state));
-            vec3 specularDir = reflect(ray.dir, hitInfo.normal);
-            ray.dir = mix(diffuseDir, specularDir, hitInfo.material.smoothness * int(isSpecularBounce));
+			if (hitInfo.material.transparency > randomValue(state)){
+			    vec3 inDir = refract(ray.dir,hitInfo.normal,hitInfo.material.refractionIndex);
+			    ray.origin = hitInfo.hitPoint + ray.dir * 0.001;
+			    HitInfo outHit = RaySphere(ray,uSpheres[hitInfo.sphereIndex].position, uSpheres[hitInfo.sphereIndex].radius);
+                ray.origin = outHit.hitPoint;
+                ray.dir = refract(inDir,outHit.normal, 1/hitInfo.material.refractionIndex);
+			}
+
+            else{
+                ray.origin = hitInfo.hitPoint;
+                bool isSpecularBounce = hitInfo.material.specularProbability >= randomValue(state);
+                vec3 diffuseDir = normalize(hitInfo.normal + randomDirection(state));
+                vec3 specularDir = reflect(ray.dir, hitInfo.normal);
+                ray.dir = mix(diffuseDir, specularDir, hitInfo.material.smoothness * int(isSpecularBounce));
+            }
 
             vec3 emittedLight = hitInfo.material.emissionColor * hitInfo.material.emissionStrength;
             incomingLight += emittedLight * rayColor;
+
             rayColor*= hitInfo.material.color.xyz;
 
             // Random early exit if ray colour is nearly 0 (can't contribute much to final result)
-            //float p = max(rayColor.r, max(rayColor.g, rayColor.b));
-            //if (randomValue(state) >= p) {
-            //    break;
-            //}
-            //rayColor *= 1.0f / p;
+            float p = max(rayColor.r, max(rayColor.g, rayColor.b));
+            if (randomValue(state) >= p) {
+                break;
+            }
+            rayColor *= 1.0f / p;
         }
         else{
-            //incomingLight += getEnvironmentLight(ray) * rayColor;
+            incomingLight += getEnvironmentLight(ray) * rayColor;
             break;
         }
     }

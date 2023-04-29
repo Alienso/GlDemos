@@ -14,10 +14,12 @@ struct RayTracingMaterial{
     float smoothness;
     float specularProbability;
     int isInvisibleLightSource;
+    float transparency;
+    float refractionIndex;
 
     RayTracingMaterial(){};
-    RayTracingMaterial(glm::vec4 _color, glm::vec3 _emissionColor, float _emissionStrength = 0, float _smoothness = 0, float _specularProbability = 0, int _invisible = 0)
-    : color(_color),emissionColor(_emissionColor), emissionStrength(_emissionStrength), smoothness(_smoothness), specularProbability(_specularProbability), isInvisibleLightSource(_invisible) {};
+    RayTracingMaterial(glm::vec4 _color, glm::vec3 _emissionColor, float _emissionStrength = 0, float _smoothness = 0, float _specularProbability = 0, int _invisible = 0, float _transparency = 0, float _refractionIndex = 1)
+    : color(_color),emissionColor(_emissionColor), emissionStrength(_emissionStrength), smoothness(_smoothness), specularProbability(_specularProbability), isInvisibleLightSource(_invisible), transparency(_transparency), refractionIndex(_refractionIndex) {};
 };
 
 struct Sphere{
