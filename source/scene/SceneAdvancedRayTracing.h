@@ -35,24 +35,19 @@ private:
     FrameBuffer* fb;
     ShaderStorageBuffer* ssb;
 
-    Mesh* mesh;
-
-    std::vector<Sphere> spheres{};
+    std::vector<Sphere*> spheres{};
     Sphere* selectedSphere = nullptr;
-    Triangle* selectedTriangle = nullptr;
 
-    std::vector<MeshInfo> meshArray;
+    std::vector<MeshInfo*> meshInfoArray = {};
+    std::vector<Mesh*> meshes = {};
+    Mesh* selectedMesh = nullptr;
+    int selectedMeshIndex = 0;
 
     unsigned int framesRendered = 0;
     int resetFrameBuffer = 0;
 
     void createWidget(bool valueChanged);
-    void setupSpheresBasic();
-    void setupSpheresReflectingOrbs();
-    void setupSpheresReflectingWalls();
-    void setupModel();
-    void SetUniformSpheres(std::vector<Sphere>& array);
-
+    void addMeshInfo(Mesh *mesh, RayTracingMaterial* material);
     void processMouseClick();
     void processMouseInput();
     void processKeyboardInput(float deltaTime);
@@ -60,8 +55,16 @@ private:
     float rayTriangle(glm::vec3& rayOrigin, glm::vec3& rayDir, Triangle tri);
     float raySphere(glm::vec3& rayOrigin, glm::vec3& rayDir, glm::vec3& sphereCenter, float sphereRadius);
 
-    void setUniformMeshInfo(std::vector<MeshInfo>& meshInfo);
-    void setUniformTriangles(std::vector<Triangle>& triangles);
+    void setupSpheresBasic();
+    void setupSpheresReflectingOrbs();
+    void setupSpheresReflectingWalls();
+    void setupModel();
+    void setupModelIndoors();
+    void setupCubeRoom();
+
+    void SetUniformSpheres(std::vector<Sphere*>& array);
+    void setUniformMeshInfo(std::vector<MeshInfo*>& meshInfo);
+    void setUniformTriangles(std::vector<Triangle*>& triangles);
 };
 
 #endif //GRASSTERRAIN_SCENEADVANCEDRAYTRACING_H

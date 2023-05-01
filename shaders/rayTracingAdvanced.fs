@@ -42,6 +42,7 @@ struct HitInfo{
     vec3 normal;
     RayTracingMaterial material;
     int sphereIndex;
+    int meshIndex;
 };
 
 in vec2 TexCoords;
@@ -69,8 +70,8 @@ layout(std430, binding = 3) readonly buffer vertex_buffer
     Triangle bTriangles[];
 };
 
-#define RAYS_PER_PIXEL 10
-#define MAX_BOUNCE 10
+#define RAYS_PER_PIXEL 5
+#define MAX_BOUNCE 4
 
 vec3 GroundColour = vec3(0.35,0.3,0.35);
 vec3 SkyColourHorizon = vec3(1,1,1);
@@ -135,7 +136,7 @@ HitInfo RayTriangle(Ray ray, Triangle tri){
     return hitInfo;
 }
 
-bool RayBoundingBox(Ray ray, vec3 boxMin, vec3 boxMax){
+bool rayBoundingBox(Ray ray, vec3 boxMin, vec3 boxMax){
     vec3 invDir = 1 / ray.dir;
     vec3 tMin = (boxMin - ray.origin) * invDir;
     vec3 tMax = (boxMax - ray.origin) * invDir;
@@ -151,6 +152,7 @@ HitInfo CalculateRayCollision(Ray ray){
     closest.dist = 99999;
     closest.didHit = false;
     closest.sphereIndex = -1;
+    closest.meshIndex = -1;
 
     for (int i=0; i< uSphereCount; i++){
         Sphere sphere = uSpheres[i];
@@ -160,23 +162,31 @@ HitInfo CalculateRayCollision(Ray ray){
             closest = hitInfo;
             closest.material = sphere.material;
             closest.sphereIndex = i;
+            closest.meshIndex = -1;
         }
     }
 
     for (int meshIndex = 0; meshIndex < uMeshCount; meshIndex++){
         MeshInfo meshInfo = uMeshInfo[meshIndex];
-    	//if (!RayBoundingBox(ray, meshInfo.boundsMin, meshInfo.boundsMax)) {
-    	//    continue;
-    	//}
+    	if (!rayBoundingBox(ray, meshInfo.boundsMin, meshInfo.boundsMax)) {
+    	    continue;
+    	}
 
     	for (int i = 0; i < meshInfo.numTriangles; i++) {
     	    int triIndex = meshInfo.firstTriangleIndex + i;
     		Triangle tri = bTriangles[triIndex];
+
+    		//if (i==0 && dot(tri.normalA,ray.dir) > 0){
+    		//    continue;
+    		//}
+
     		HitInfo hitInfo = RayTriangle(ray, tri);
 
     		if (hitInfo.didHit && hitInfo.dist < closest.dist){
                 closest = hitInfo;
                 closest.material = meshInfo.material;
+                closest.meshIndex = i;
+                closest.sphereIndex = -1;
             }
     	}
     }
@@ -205,11 +215,6 @@ vec3 randomDirection(inout uint state){
     return normalize(vec3(x,y,z));
 }
 
-vec3 randomHemisphereDirection(vec3 normal, inout uint state){
-    vec3 dir = randomDirection(state);
-    return dir * sign(dot(normal, dir));
-}
-
 vec3 getEnvironmentLight(Ray ray){
 
     float skyGradientT = pow(smoothstep(0.0, 0.4, ray.dir.y), 0.35);
@@ -228,6 +233,12 @@ vec3 trace(Ray ray, inout uint state){
     vec3 rayColor = vec3(1,1,1);
 
     for (int i=0; i<MAX_BOUNCE; i++){
+
+        if (i == MAX_BOUNCE - 1){
+            //todo change this to light pos
+            ray.dir = normalize(uSpheres[0].position - ray.origin);
+        }
+
         HitInfo hitInfo = CalculateRayCollision(ray);
         if (hitInfo.didHit){
             ray.origin = hitInfo.hitPoint;
@@ -239,9 +250,13 @@ vec3 trace(Ray ray, inout uint state){
 			if (hitInfo.material.transparency > randomValue(state)){
 			    vec3 inDir = refract(ray.dir,hitInfo.normal,hitInfo.material.refractionIndex);
 			    ray.origin = hitInfo.hitPoint + ray.dir * 0.001;
-			    HitInfo outHit = RaySphere(ray,uSpheres[hitInfo.sphereIndex].position, uSpheres[hitInfo.sphereIndex].radius);
-                ray.origin = outHit.hitPoint;
-                ray.dir = refract(inDir,outHit.normal, 1/hitInfo.material.refractionIndex);
+			    if (hitInfo.sphereIndex != -1){
+			        HitInfo outHit = RaySphere(ray,uSpheres[hitInfo.sphereIndex].position, uSpheres[hitInfo.sphereIndex].radius);
+                    ray.origin = outHit.hitPoint;
+                    ray.dir = refract(inDir,outHit.normal, 1/hitInfo.material.refractionIndex);
+                }else if (hitInfo.meshIndex != -1){
+                    ray.dir = refract(ray.dir,hitInfo.normal, 1/hitInfo.material.refractionIndex);
+                }
 			}
 
             else{

@@ -38,10 +38,12 @@ SceneAdvancedRayTracing::SceneAdvancedRayTracing(GLFWwindow* _window) : window(_
             2, 3, 0
     };
 
-    setupSpheresBasic();
+    //setupSpheresBasic();
     //setupSpheresReflectingWalls();
     //setupSpheresReflectingOrbs();
     //setupModel();
+    //setupModelIndoors();
+    setupCubeRoom();
 
     vb = new VertexBuffer(vertices, sizeof(vertices));
     layout = new VertexBufferLayout();
@@ -51,8 +53,8 @@ SceneAdvancedRayTracing::SceneAdvancedRayTracing(GLFWwindow* _window) : window(_
     va->addBuffer(*vb, *layout);
     ib = new IndexBuffer(indices, 6);
     fb = new FrameBuffer();
-    //ssb = new ShaderStorageBuffer((void*)&((mesh->triangles)[0]), (mesh->triangles).size() * sizeof(Triangle));
-
+    //ssb = new ShaderStorageBuffer((void*)&(((meshes[0])->triangles)[0]), ((meshes[0])->triangles).size() * sizeof(Triangle));
+    ssb = new ShaderStorageBuffer(meshes);
 }
 
 SceneAdvancedRayTracing::~SceneAdvancedRayTracing() {
@@ -64,6 +66,13 @@ SceneAdvancedRayTracing::~SceneAdvancedRayTracing() {
     free(ib);
     free(fb);
     free(ssb);
+
+    for (auto &mesh : meshes)
+        delete mesh;
+    for (auto &meshInfo : meshInfoArray)
+        delete meshInfo;
+    for (auto &sphere : spheres)
+        delete sphere;
 
     Instrumentor::get().endSession();
 
@@ -88,10 +97,10 @@ void SceneAdvancedRayTracing::onRender() {
     shader->setUInt("uFramesRendered", framesRendered);
     shader->setInt("uResetBuffer", resetFrameBuffer);
 
-    shader->setInt("uMeshCount",1);
-    setUniformMeshInfo(meshArray);
+    shader->setInt("uMeshCount",meshes.size());
+    setUniformMeshInfo(meshInfoArray);
 
-    //ssb->bind();
+    ssb->bind();
 
     renderer.draw(*va,*ib,*shader);
 
@@ -133,20 +142,32 @@ void SceneAdvancedRayTracing::onImGuiRender() {
         createWidget(ImGui::SliderFloat("Refractive Index",&selectedSphere->material.refractionIndex, 0, 20));
     }
 
-    if (selectedTriangle != nullptr){
-        createWidget(ImGui::SliderFloat("PosA X",&selectedTriangle->posA.x,-50,50));
-        createWidget(ImGui::SliderFloat("PosA Y",&selectedTriangle->posA.y,-50,50));
-        createWidget(ImGui::SliderFloat("PosA Z",&selectedTriangle->posA.z,-50,50));
+    if (selectedMesh != nullptr){
+        /*createWidget(ImGui::SliderFloat("Pos X",&selectedMesh->m_pos.x,-50,50));
+        createWidget(ImGui::SliderFloat("Pos Y",&selectedMesh->m_pos.y,-50,50));
+        createWidget(ImGui::SliderFloat("Pos Z",&selectedMesh->m_pos.z,-50,50));
 
-        createWidget(ImGui::SliderFloat("PosB X",&selectedTriangle->posB.x,-50,50));
-        createWidget(ImGui::SliderFloat("PosB Y",&selectedTriangle->posB.y,-50,50));
-        createWidget(ImGui::SliderFloat("PosB Z",&selectedTriangle->posB.z,-50,50));
+        createWidget(ImGui::SliderFloat("Scale X",&selectedMesh->m_scale.x,0,5));
+        createWidget(ImGui::SliderFloat("Scale Y",&selectedMesh->m_scale.y,0,5));
+        createWidget(ImGui::SliderFloat("Scale Z",&selectedMesh->m_scale.z,0,5));
 
-        createWidget(ImGui::SliderFloat("PosC X",&selectedTriangle->posC.x,-50,50));
-        createWidget(ImGui::SliderFloat("PosC Y",&selectedTriangle->posC.y,-50,50));
-        createWidget(ImGui::SliderFloat("PosC Z",&selectedTriangle->posC.z,-50,50));
+        createWidget(ImGui::SliderFloat("Rotation X",&selectedMesh->m_rotation.x,-360,360));
+        createWidget(ImGui::SliderFloat("Rotation Y",&selectedMesh->m_rotation.y,-360,360));
+        createWidget(ImGui::SliderFloat("Rotation Z",&selectedMesh->m_rotation.z,-360,360));*/
 
-        //TODO FIX NORMALS
+        createWidget(ImGui::DragFloat3("Pos",&selectedMesh->m_pos.x,1,1));
+        createWidget(ImGui::DragFloat3("Scale",&selectedMesh->m_scale.x,0.05,1));
+        createWidget(ImGui::DragFloat3("Rotation",&selectedMesh->m_rotation.x,1,1));
+
+        createWidget(ImGui::ColorEdit3("Color", &meshInfoArray[selectedMeshIndex]->material.color.x));
+        createWidget(ImGui::ColorEdit3("Emission Color", &meshInfoArray[selectedMeshIndex]->material.emissionColor.x));
+        createWidget(ImGui::InputFloat("Emission Strength",&meshInfoArray[selectedMeshIndex]->material.emissionStrength, 0.1f, 1));
+        createWidget(ImGui::SliderFloat("Smoothness",&meshInfoArray[selectedMeshIndex]->material.smoothness, 0, 1));
+        createWidget(ImGui::SliderFloat("Specular probability",&meshInfoArray[selectedMeshIndex]->material.specularProbability, 0, 1));
+        createWidget(ImGui::SliderInt("Invisible light source",&meshInfoArray[selectedMeshIndex]->material.isInvisibleLightSource,0,1));
+        createWidget(ImGui::SliderFloat("Transparency",&meshInfoArray[selectedMeshIndex]->material.transparency, 0, 1));
+        createWidget(ImGui::SliderFloat("Refractive Index",&meshInfoArray[selectedMeshIndex]->material.refractionIndex, 0, 20));
+
     }
 
     if (!ImGui::IsAnyItemActive()){
@@ -160,7 +181,21 @@ void SceneAdvancedRayTracing::createWidget(bool valueChanged){
    if (valueChanged){
        resetFrameBuffer = 1;
        framesRendered = 0;
+       if (selectedMesh != nullptr){
+           selectedMesh->update();
+           meshInfoArray[selectedMeshIndex]->boundsMin = meshes[selectedMeshIndex]->boundsMin;
+           meshInfoArray[selectedMeshIndex]->boundsMax = meshes[selectedMeshIndex]->boundsMax;
+           ssb->updateData(meshes);
+       }
    }
+}
+
+void SceneAdvancedRayTracing::addMeshInfo(Mesh *mesh, RayTracingMaterial* material) {
+    int firstTriangleIndex = 0;
+    for (auto &meshInfo : meshInfoArray){
+        firstTriangleIndex += meshInfo->numTriangles;
+    }
+    meshInfoArray.push_back(new MeshInfo(firstTriangleIndex,mesh->triangles.size(),*material, mesh->boundsMin, mesh->boundsMax));
 }
 
 

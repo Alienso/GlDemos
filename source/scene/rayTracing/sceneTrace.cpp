@@ -15,34 +15,35 @@ void SceneAdvancedRayTracing::trace(double xPos, double yPos){
 
     glm::vec3 rayDir = normalize(camera.front + glm::vec3(uv.x,uv.y,0));
 
-    for (int i=0; i< spheres.size(); i++){
-        float dist = raySphere(camera.pos, rayDir, spheres[i].position, spheres[i].radius);
+    for (auto & sphere : spheres){
+        float dist = raySphere(camera.pos, rayDir, sphere->position, sphere->radius);
 
         if (dist >= 0 && dist < minDist){
-            selectedSphere = &(spheres[i]);
-            selectedTriangle = nullptr;
+            selectedSphere = sphere;
+            selectedMesh = nullptr;
             minDist = dist;
         }
     }
 
-    /*for (int meshIndex = 0; meshIndex < meshArray.size(); meshIndex ++) {
-        MeshInfo meshInfo = meshArray[meshIndex];
+    for (int meshIndex = 0; meshIndex < meshInfoArray.size(); meshIndex++) {
+        MeshInfo* meshInfo = meshInfoArray[meshIndex];
         //if (!RayBoundingBox(ray, meshInfo.boundsMin, meshInfo.boundsMax)) {
         //    continue;
         //}
 
-        for (int i = 0; i < meshInfo.numTriangles; i++) {
-            int triIndex = meshInfo.firstTriangleIndex + i;
-            Triangle* tri = &triangleArr[triIndex];
+        for (int i = 0; i < meshInfo->numTriangles; i++) {
+            int triIndex = meshInfo->firstTriangleIndex + i;
+            Triangle* tri = &(meshes[meshIndex]->triangles[triIndex]);
             float dist = rayTriangle(camera.pos, rayDir, *tri);
 
             if (dist >= 0 && dist < minDist) {
                 minDist = dist;
                 selectedSphere = nullptr;
-                selectedTriangle = tri;
+                selectedMesh = meshes[meshIndex];
+                selectedMeshIndex = meshIndex;
             }
         }
-    }*/
+    }
 }
 
 float SceneAdvancedRayTracing::raySphere(glm::vec3& rayOrigin, glm::vec3& rayDir, glm::vec3& sphereCenter, float sphereRadius){
@@ -66,7 +67,7 @@ float SceneAdvancedRayTracing::raySphere(glm::vec3& rayOrigin, glm::vec3& rayDir
 }
 
 float SceneAdvancedRayTracing::rayTriangle(glm::vec3& rayOrigin, glm::vec3& rayDir, Triangle tri){
-    /*glm::vec3 edgeAB = tri.posB - tri.posA;
+    glm::vec3 edgeAB = tri.posB - tri.posA;
     glm::vec3 edgeAC = tri.posC - tri.posA;
     glm::vec3 normalVector = cross(edgeAB, edgeAC);
     glm::vec3 ao = rayOrigin - tri.posA;
@@ -88,6 +89,5 @@ float SceneAdvancedRayTracing::rayTriangle(glm::vec3& rayOrigin, glm::vec3& rayD
     float dist = dst;
     if (didHit)
         return dist;
-    else return 99999;*/
-    return 0;
+    else return 99999;
 }

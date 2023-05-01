@@ -85,8 +85,8 @@ int main(int argc, char** argv) {
     //SceneMemoryAllocate scene(atoi(argv[1]));
     SceneAdvancedRayTracing scene(window);
 
-    printf("Hello!");
     //printf("Hello!");
+    printf("Hello!");
 
     float lastTime = glfwGetTime();
     {

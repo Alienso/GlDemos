@@ -6,14 +6,19 @@
 #define GRASSTERRAIN_SHADERSTORAGEBUFFER_H
 
 
+#include "Mesh.h"
+
 class ShaderStorageBuffer {
 public:
     ShaderStorageBuffer();
     ShaderStorageBuffer(const void *data, unsigned int size);
+    ShaderStorageBuffer(std::vector<Mesh*> &meshes);
     ~ShaderStorageBuffer();
 
     void bind() const;
     void unbind() const;
+
+    void updateData(std::vector<Mesh *> &meshes);
 
 private:
     unsigned int rendererID;
