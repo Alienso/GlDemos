@@ -4,9 +4,7 @@
 
 #include "VertexBufferLayout.h"
 
-VertexBufferLayout::VertexBufferLayout() : stride(0) {
-
-}
+VertexBufferLayout::VertexBufferLayout() : stride(0) {}
 
 const std::vector<VertexBufferElement> &VertexBufferLayout::getElements() const {
     return elements;

@@ -1,5 +1,5 @@
 //
-// Created by Alienson on 25.4.2023..
+// Created by Alienso on 25.4.2023..
 //
 
 #include "Mesh.h"
@@ -54,14 +54,6 @@ Mesh::Mesh(const char *path) {
         }
     }
     updateBounds(this);
-}
-
-float* Mesh::getVerticesAndNormalsData() {
-    return nullptr;
-}
-
-float* Mesh::getVerticesData() {
-    return nullptr;
 }
 
 Mesh *Mesh::translate(glm::vec3& translate, Mesh* mesh) {

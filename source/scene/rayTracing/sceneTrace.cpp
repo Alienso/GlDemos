@@ -1,5 +1,5 @@
 //
-// Created by Alienson on 28.4.2023..
+// Created by Alienso on 28.4.2023..
 //
 
 #include "../SceneAdvancedRayTracing.h"
@@ -27,9 +27,6 @@ void SceneAdvancedRayTracing::trace(double xPos, double yPos){
 
     for (int meshIndex = 0; meshIndex < meshInfoArray.size(); meshIndex++) {
         MeshInfo* meshInfo = meshInfoArray[meshIndex];
-        //if (!RayBoundingBox(ray, meshInfo.boundsMin, meshInfo.boundsMax)) {
-        //    continue;
-        //}
 
         for (int i = 0; i < meshInfo->numTriangles; i++) {
             Triangle* tri = &(meshes[meshIndex]->triangles[i]);

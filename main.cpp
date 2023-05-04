@@ -3,7 +3,6 @@
 
 #include "lib/glm/glm.hpp"
 #include "lib/glm//gtc/matrix_transform.hpp"
-#include "lib/glm//gtc/type_ptr.hpp"
 
 #include <iostream>
 #include <cmath>
@@ -51,8 +50,8 @@ int main(int argc, char** argv) {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    GLFWwindow* window = glfwCreateWindow(Configuration::wWidth,Configuration::wHeight, "LearnOpenGL", NULL, NULL);
-    if (window == NULL){
+    GLFWwindow* window = glfwCreateWindow(Configuration::wWidth,Configuration::wHeight, "LearnOpenGL", nullptr, nullptr);
+    if (window == nullptr){
         std::cout << "Failed to create GLFW window" << std::endl;
         glfwTerminate();
         return -1;
@@ -86,7 +85,7 @@ int main(int argc, char** argv) {
     SceneAdvancedRayTracing scene(window);
 
     //printf("Hello!");
-    printf("Hello!");
+    //printf("Hello!");
 
     float lastTime = glfwGetTime();
     {

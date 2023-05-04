@@ -1,5 +1,5 @@
 //
-// Created by Alienson on 26.4.2023..
+// Created by Alienso on 26.4.2023..
 //
 
 #ifndef GRASSTERRAIN_SHADERSTORAGEBUFFER_H

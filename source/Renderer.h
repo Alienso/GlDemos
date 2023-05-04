@@ -12,8 +12,7 @@
 class Renderer {
 
 public:
-    Renderer();
-    ~Renderer();
+    Renderer() = default;
 
     void draw(VertexArray& va,IndexBuffer& ib,Shader& shader);
     void clear();

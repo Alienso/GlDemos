@@ -14,7 +14,6 @@ private:
     unsigned char* localBuffer;
     int width,height,BPP;
 public:
-    Texture();
     Texture(const char* path, unsigned int type);
     ~Texture();
 

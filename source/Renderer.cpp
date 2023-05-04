@@ -4,14 +4,6 @@
 
 #include "Renderer.h"
 
-Renderer::Renderer() {
-
-}
-
-Renderer::~Renderer() {
-
-}
-
 void Renderer::draw(VertexArray &va,IndexBuffer &ib, Shader &shader) {
     shader.use();
     va.bind();

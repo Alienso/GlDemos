@@ -11,8 +11,7 @@ struct Vertex{
     float base;
 };
 
-MapGen::MapGen(int width_, int height_, float scale_, int octaves_, float persistance_, float lacunarity_,float amplitude_):width(width_),height(height_),scale(scale_),octaves(octaves_),persistance(persistance_),lacunarity(lacunarity_),amplitude(amplitude_){
-}
+MapGen::MapGen(int width_, int height_, float scale_, int octaves_, float persistance_, float lacunarity_,float amplitude_):width(width_),height(height_),scale(scale_),octaves(octaves_),persistance(persistance_),lacunarity(lacunarity_),amplitude(amplitude_){}
 
 vector<float> MapGen::generateChunk(vector<unsigned int>* ind,int coords[2]) {
 

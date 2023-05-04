@@ -9,8 +9,6 @@
 
 #include <iostream>
 
-Texture::Texture() {
-}
 
 Texture::Texture(const char *path, unsigned int type) : rendererID(0), filePath(path), localBuffer(nullptr), width(0), height(0), BPP(0) {
 

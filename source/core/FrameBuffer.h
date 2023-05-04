@@ -18,7 +18,6 @@ public:
 private:
     unsigned int rendererID;
     unsigned int renderedTexture;
-    unsigned int renderBufferID;
 };
 
 

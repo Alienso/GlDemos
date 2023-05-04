@@ -9,8 +9,6 @@
 
 class RayTracingMaterials {
 public:
-
-    RayTracingMaterials(){};
     static void init();
     static RayTracingMaterial red;
     static RayTracingMaterial blue;
@@ -21,6 +19,8 @@ public:
     static RayTracingMaterial purple;
     static RayTracingMaterial yellow;
     static RayTracingMaterial cyan;
+private:
+    RayTracingMaterials()= default;
 };
 
 

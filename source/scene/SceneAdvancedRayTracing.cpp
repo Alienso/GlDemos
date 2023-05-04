@@ -7,8 +7,6 @@
 
 
 #include "../Configuration.h"
-#include "rayTracing/RayTracingMaterials.h"
-#include "../core/Texture.h"
 #include "../util/Profiler.h"
 
 
@@ -54,7 +52,6 @@ SceneAdvancedRayTracing::SceneAdvancedRayTracing(GLFWwindow* _window) : window(_
     va->addBuffer(*vb, *layout);
     ib = new IndexBuffer(indices, 6);
     fb = new FrameBuffer();
-    //ssb = new ShaderStorageBuffer((void*)&(((meshes[0])->triangles)[0]), ((meshes[0])->triangles).size() * sizeof(Triangle));
     ssb = new ShaderStorageBuffer(meshes);
 }
 
@@ -144,18 +141,6 @@ void SceneAdvancedRayTracing::onImGuiRender() {
     }
 
     if (selectedMesh != nullptr){
-        /*createWidget(ImGui::SliderFloat("Pos X",&selectedMesh->m_pos.x,-50,50));
-        createWidget(ImGui::SliderFloat("Pos Y",&selectedMesh->m_pos.y,-50,50));
-        createWidget(ImGui::SliderFloat("Pos Z",&selectedMesh->m_pos.z,-50,50));
-
-        createWidget(ImGui::SliderFloat("Scale X",&selectedMesh->m_scale.x,0,5));
-        createWidget(ImGui::SliderFloat("Scale Y",&selectedMesh->m_scale.y,0,5));
-        createWidget(ImGui::SliderFloat("Scale Z",&selectedMesh->m_scale.z,0,5));
-
-        createWidget(ImGui::SliderFloat("Rotation X",&selectedMesh->m_rotation.x,-360,360));
-        createWidget(ImGui::SliderFloat("Rotation Y",&selectedMesh->m_rotation.y,-360,360));
-        createWidget(ImGui::SliderFloat("Rotation Z",&selectedMesh->m_rotation.z,-360,360));*/
-
         createWidget(ImGui::DragFloat3("Pos",&selectedMesh->m_pos.x,1,1));
         createWidget(ImGui::DragFloat3("Scale",&selectedMesh->m_scale.x,0.05,1));
         createWidget(ImGui::DragFloat3("Rotation",&selectedMesh->m_rotation.x,1,1));

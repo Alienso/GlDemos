@@ -1,14 +1,12 @@
 //
-// Created by Alienson on 28.4.2023..
+// Created by Alienso on 28.4.2023..
 //
 
 #include <imgui/imgui.h>
 
-#include "../../Configuration.h"
 #include "../rayTracing/RayTracingMaterials.h"
 #include "../../core/Texture.h"
 #include "../../util/Profiler.h"
-#include "../SceneAdvancedRayTracing.h"
 
 static void setupMaterialUniforms(const std::string& name, RayTracingMaterial& material, Shader* shader, int i);
 

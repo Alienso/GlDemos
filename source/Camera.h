@@ -11,7 +11,6 @@ class Camera {
 
 public:
     Camera();
-    ~Camera();
 
     bool firstMouse;
     glm::vec3 pos;

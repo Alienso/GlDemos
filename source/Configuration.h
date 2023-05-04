@@ -13,8 +13,7 @@ public:
     static float fov;
     static float fovMax;
 
-    Configuration(){
-    };
+    Configuration()= default;
 };
 
 #endif //GRASSTERRAIN_CONFIGURATION_H
