@@ -71,9 +71,9 @@ void SceneAdvancedRayTracing::setupModel() {
     spheres.push_back(new Sphere(glm::vec3(0.0, -1030.0, 0.0), 1000, RayTracingMaterials::lightBlue)); //bottom
 
     Mesh* base = new Mesh("rifle.obj");
-    glm::vec3 t = glm::vec3(-10,0,-15);
+    glm::vec3 t = glm::vec3(-5,0,0);
     glm::vec3 r = glm::vec3(0,90,0);
-    Mesh* newMesh = base->transform(t,0.5f,r);
+    Mesh* newMesh = base->transform(t,0.33f,r);
     meshes.push_back(newMesh);
     free(base);
 
@@ -131,6 +131,41 @@ void SceneAdvancedRayTracing::setupCubeRoom() {
     addMeshInfo(left, &RayTracingMaterials::red);
 
     free(base);
+}
+
+void SceneAdvancedRayTracing::setupSquareRoom() {
+    Mesh* base = new Mesh("square.obj");
+    Mesh* cube = new Mesh("cube.obj");
+    Mesh* light = cube->transform(glm::vec3(0,25,0),glm::vec3(5,1,5),glm::vec3(0,0,0));
+
+    Mesh* bottom =  base->transform(glm::vec3(0,-30,0),glm::vec3(30,30,30),glm::vec3(0,0,90));
+    Mesh* top =  base->transform(glm::vec3(0,30,0),glm::vec3(30,30,30),glm::vec3(0,0,-90));
+    Mesh* back =  base->transform(glm::vec3(0,0,30),glm::vec3(30,30,30),glm::vec3(0,0,0));
+    Mesh* front =  base->transform(glm::vec3(0,0,-30),glm::vec3(30,30,30),glm::vec3(0,0,0));
+    Mesh* right =  base->transform(glm::vec3(30,0,0),glm::vec3(30,30,30),glm::vec3(0,90,0));
+    Mesh* left =  base->transform(glm::vec3(-30,0,0),glm::vec3(30,30,30),glm::vec3(0,-90,0));
+
+    meshes.push_back(light);
+    meshes.push_back(bottom);
+    meshes.push_back(top);
+    meshes.push_back(back);
+    meshes.push_back(front);
+    meshes.push_back(right);
+    meshes.push_back(left);
+
+    addMeshInfo(light, &RayTracingMaterials::white);
+    meshInfoArray[0]->material.emissionStrength = 5;
+    addMeshInfo(bottom, &RayTracingMaterials::white);
+    addMeshInfo(top, &RayTracingMaterials::white);
+    addMeshInfo(back, &RayTracingMaterials::lightBlue);
+    addMeshInfo(front, &RayTracingMaterials::white);
+    addMeshInfo(right, &RayTracingMaterials::green);
+    addMeshInfo(left, &RayTracingMaterials::red);
+
+    spheres.push_back(new Sphere(glm::vec3(0,0,0), 8, RayTracingMaterials::cyan));
+
+    free(base);
+    free(cube);
 }
 
 void SceneAdvancedRayTracing::SetUniformSpheres(std::vector<Sphere*>& array){

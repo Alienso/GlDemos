@@ -52,7 +52,7 @@ private:
     void processMouseInput();
     void processKeyboardInput(float deltaTime);
     void trace(double xPos, double yPos);
-    float rayTriangle(glm::vec3& rayOrigin, glm::vec3& rayDir, Triangle tri);
+    float rayTriangle(glm::vec3& rayOrigin, glm::vec3& rayDir, Triangle* tri);
     float raySphere(glm::vec3& rayOrigin, glm::vec3& rayDir, glm::vec3& sphereCenter, float sphereRadius);
 
     void setupSpheresBasic();
@@ -61,6 +61,7 @@ private:
     void setupModel();
     void setupModelIndoors();
     void setupCubeRoom();
+    void setupSquareRoom();
 
     void SetUniformSpheres(std::vector<Sphere*>& array);
     void setUniformMeshInfo(std::vector<MeshInfo*>& meshInfo);

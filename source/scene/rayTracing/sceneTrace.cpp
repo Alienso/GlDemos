@@ -32,9 +32,8 @@ void SceneAdvancedRayTracing::trace(double xPos, double yPos){
         //}
 
         for (int i = 0; i < meshInfo->numTriangles; i++) {
-            int triIndex = meshInfo->firstTriangleIndex + i;
-            Triangle* tri = &(meshes[meshIndex]->triangles[triIndex]);
-            float dist = rayTriangle(camera.pos, rayDir, *tri);
+            Triangle* tri = &(meshes[meshIndex]->triangles[i]);
+            float dist = rayTriangle(camera.pos, rayDir, tri);
 
             if (dist >= 0 && dist < minDist) {
                 minDist = dist;
@@ -66,11 +65,11 @@ float SceneAdvancedRayTracing::raySphere(glm::vec3& rayOrigin, glm::vec3& rayDir
     return ret;
 }
 
-float SceneAdvancedRayTracing::rayTriangle(glm::vec3& rayOrigin, glm::vec3& rayDir, Triangle tri){
-    glm::vec3 edgeAB = tri.posB - tri.posA;
-    glm::vec3 edgeAC = tri.posC - tri.posA;
+float SceneAdvancedRayTracing::rayTriangle(glm::vec3& rayOrigin, glm::vec3& rayDir, Triangle* tri){
+    glm::vec3 edgeAB = tri->posB - tri->posA;
+    glm::vec3 edgeAC = tri->posC - tri->posA;
     glm::vec3 normalVector = cross(edgeAB, edgeAC);
-    glm::vec3 ao = rayOrigin - tri.posA;
+    glm::vec3 ao = rayOrigin - tri->posA;
     glm::vec3 dao = cross(ao, rayDir);
 
     float determinant = -dot(rayDir, normalVector);
@@ -85,7 +84,7 @@ float SceneAdvancedRayTracing::rayTriangle(glm::vec3& rayOrigin, glm::vec3& rayD
     // Initialize hit info
     bool didHit = determinant >= 1E-6 && dst >= 0 && u >= 0 && v >= 0 && w >= 0;
     glm::vec3 hitPoint = rayOrigin + rayDir * dst;
-    glm::vec3 normal = normalize(tri.normalA * w + tri.normalB * u + tri.normalC * v);
+    glm::vec3 normal = normalize(tri->normalA * w + tri->normalB * u + tri->normalC * v);
     float dist = dst;
     if (didHit)
         return dist;

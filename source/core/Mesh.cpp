@@ -98,6 +98,10 @@ Mesh *Mesh::rotate(glm::vec3& rotation, Mesh* mesh) {
         mesh->triangles.resize(triangles.size());
     }
 
+    mesh->verticesNormals = verticesNormals;
+    mesh->textureCoordinates = textureCoordinates;
+    mesh->indices = indices;
+
     double cosA = cos(glm::radians(rotation.x));
     double cosB = cos(glm::radians(rotation.y));
     double cosY = cos(glm::radians(rotation.z));
@@ -120,9 +124,6 @@ Mesh *Mesh::rotate(glm::vec3& rotation, Mesh* mesh) {
         glm::vec3 newNormal = triangles[i].normalA * rotationMatrix;
         mesh->triangles[i] = {triangles[i].posA * rotationMatrix, triangles[i].posB * rotationMatrix, triangles[i].posC * rotationMatrix, newNormal,newNormal,newNormal};
     }
-    mesh->verticesNormals = verticesNormals;
-    mesh->textureCoordinates = textureCoordinates;
-    mesh->indices = indices;
     updateBounds(mesh);
     return mesh;
 }
@@ -171,6 +172,10 @@ Mesh *Mesh::transform(glm::vec3 translate, glm::vec3 scale, glm::vec3 rotation, 
         mesh->triangles.resize(triangles.size());
     }
 
+    mesh->verticesNormals = verticesNormals;
+    mesh->textureCoordinates = textureCoordinates;
+    mesh->indices = indices;
+
     double cosA = cos(glm::radians(rotation.x));
     double cosB = cos(glm::radians(rotation.y));
     double cosY = cos(glm::radians(rotation.z));
@@ -197,9 +202,6 @@ Mesh *Mesh::transform(glm::vec3 translate, glm::vec3 scale, glm::vec3 rotation, 
         glm::vec3 newNormal = triangles[i].normalA * rotationMatrix;
         mesh->triangles[i] = {posA,posB,posC,newNormal,newNormal,newNormal};
     }
-    mesh->verticesNormals = verticesNormals;
-    mesh->textureCoordinates = textureCoordinates;
-    mesh->indices = indices;
     updateBounds(mesh);
     return mesh;
 }
