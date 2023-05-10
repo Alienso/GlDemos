@@ -61,6 +61,8 @@ Mesh *Mesh::translate(glm::vec3& translate, Mesh* mesh) {
         mesh = new Mesh;
         mesh->vertices.resize(vertices.size());
         mesh->triangles.resize(triangles.size());
+
+        m_pos = m_oldPos = translate;
     }
 
     for (int i=0; i<vertices.size(); i++){
@@ -88,6 +90,8 @@ Mesh *Mesh::rotate(glm::vec3& rotation, Mesh* mesh) {
         mesh->vertices.resize(vertices.size());
         mesh->verticesNormals.resize(verticesNormals.size());
         mesh->triangles.resize(triangles.size());
+
+        mesh->m_rotation = mesh->m_oldRotation = rotation;
     }
 
     mesh->verticesNormals = verticesNormals;
@@ -146,6 +150,8 @@ Mesh *Mesh::scale(glm::vec3& scale, Mesh* mesh) {
         mesh = new Mesh;
         mesh->vertices.resize(vertices.size());
         mesh->triangles.resize(triangles.size());
+
+        m_scale = m_oldScale = scale;
     }
 
     for (int i=0; i<vertices.size(); i++){
