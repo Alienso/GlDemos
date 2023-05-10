@@ -1,4 +1,4 @@
-#version 430 core
+#version 460 core
 
 struct RayTracingMaterial{
     vec4 color;
@@ -70,8 +70,8 @@ layout(std430, binding = 3) readonly buffer vertex_buffer
     Triangle bTriangles[];
 };
 
-#define RAYS_PER_PIXEL 5
-#define MAX_BOUNCE 4
+#define RAYS_PER_PIXEL 1
+#define MAX_BOUNCE 6
 
 vec3 GroundColour = vec3(0.35,0.3,0.35);
 vec3 SkyColourHorizon = vec3(1,1,1);

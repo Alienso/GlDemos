@@ -102,19 +102,35 @@ Mesh *Mesh::rotate(glm::vec3& rotation, Mesh* mesh) {
     double sinB = sin(glm::radians(rotation.y));
     double sinY = sin(glm::radians(rotation.z));
 
-    glm::mat3x3 rotationMatrix = { cosA*cosB, cosA*sinB*sinY - sinA*cosY, cosA*sinB*cosY + sinA*sinY,
-                                  sinA*cosB, sinA*sinB*sinY + cosA*cosY ,sinA*sinB*cosY - cosA*sinY,
-                                  -sinB, cosB*sinY, cosB*cosY};
+    glm::mat4x4 rotationMatrix = { cosA*cosB, cosA*sinB*sinY - sinA*cosY, cosA*sinB*cosY + sinA*sinY, 0,
+                                  sinA*cosB, sinA*sinB*sinY + cosA*cosY ,sinA*sinB*cosY - cosA*sinY, 0,
+                                  -sinB, cosB*sinY, cosB*cosY, 0,
+                                  0,0,0,1};
+
+    glm::mat4x4 translationMatrix1 = {1,0,0, m_pos.x,
+                                     0,1,0,m_pos.y,
+                                     0,0,1,m_pos.z,
+                                     0,0,0,1};
+
+    glm::mat4x4 translationMatrix2 = {1,0,0, -m_pos.x,
+                                     0,1,0,-m_pos.y,
+                                     0,0,1,-m_pos.z,
+                                     0,0,0,1};
+
+    glm::mat4x4 transformationMatrix = translationMatrix2 * rotationMatrix * translationMatrix1;
 
     for (int i=0; i<vertices.size(); i++){
-        mesh->vertices[i] = vertices[i] * rotationMatrix;
+        mesh->vertices[i] = glm::vec4(vertices[i],1) * transformationMatrix;
     }
     for (int i=0; i<verticesNormals.size(); i++){
-        mesh->verticesNormals[i] = mesh->verticesNormals[i] * rotationMatrix;
+        mesh->verticesNormals[i] = glm::vec4(mesh->verticesNormals[i],1) * rotationMatrix;
     }
     for (int i=0; i<triangles.size(); i++){
-        glm::vec3 newNormal = triangles[i].normalA * rotationMatrix;
-        mesh->triangles[i] = {triangles[i].posA * rotationMatrix, triangles[i].posB * rotationMatrix, triangles[i].posC * rotationMatrix, newNormal,newNormal,newNormal};
+        glm::vec3 newNormal = glm::vec4(triangles[i].normalA,1) * transformationMatrix;
+        mesh->triangles[i] = { glm::vec4(triangles[i].posA,1) * transformationMatrix,
+                               glm::vec4(triangles[i].posB,1) * transformationMatrix,
+                               glm::vec4(triangles[i].posC,1) * transformationMatrix,
+                               newNormal,newNormal,newNormal};
     }
     updateBounds(mesh);
     return mesh;
@@ -133,11 +149,15 @@ Mesh *Mesh::scale(glm::vec3& scale, Mesh* mesh) {
     }
 
     for (int i=0; i<vertices.size(); i++){
-        mesh->vertices[i] = {vertices[i].x * scale.x, vertices[i].y * scale.y, vertices[i].z * scale.z};
+        mesh->vertices[i] = {(vertices[i].x - m_pos.x) * scale.x + m_pos.x,
+                             (vertices[i].y - m_pos.y) * scale.y + m_pos.y,
+                             (vertices[i].z - m_pos.z) * scale.z + m_pos.z };
     }
     for (int i=0; i<triangles.size(); i++){
-        mesh->triangles[i] = {triangles[i].posA * scale, triangles[i].posB * scale, triangles[i].posC * scale,
-                                     triangles[i].normalA, triangles[i].normalB, triangles[i].normalC};
+        mesh->triangles[i] = {(triangles[i].posA - m_pos) * scale + m_pos,
+                              (triangles[i].posB - m_pos) * scale + m_pos,
+                              (triangles[i].posC - m_pos) * scale + m_pos,
+                              triangles[i].normalA, triangles[i].normalB, triangles[i].normalC};
     }
     mesh->verticesNormals = verticesNormals;
     mesh->textureCoordinates = textureCoordinates;
@@ -162,6 +182,10 @@ Mesh *Mesh::transform(glm::vec3 translate, glm::vec3 scale, glm::vec3 rotation, 
         mesh->vertices.resize(vertices.size());
         mesh->verticesNormals.resize(verticesNormals.size());
         mesh->triangles.resize(triangles.size());
+
+        mesh->m_pos = mesh->m_oldPos = translate;
+        mesh->m_scale = mesh->m_oldScale = scale;
+        mesh->m_rotation = mesh->m_oldRotation = rotation;
     }
 
     mesh->verticesNormals = verticesNormals;
@@ -176,22 +200,44 @@ Mesh *Mesh::transform(glm::vec3 translate, glm::vec3 scale, glm::vec3 rotation, 
     double sinB = sin(glm::radians(rotation.y));
     double sinY = sin(glm::radians(rotation.z));
 
-    glm::mat3x3 rotationMatrix = { cosA*cosB, cosA*sinB*sinY - sinA*cosY, cosA*sinB*cosY + sinA*sinY,
-                                   sinA*cosB, sinA*sinB*sinY + cosA*cosY ,sinA*sinB*cosY - cosA*sinY,
-                                   -sinB, cosB*sinY, cosB*cosY};
+    glm::mat4x4 rotationMatrix = { cosA*cosB, cosA*sinB*sinY - sinA*cosY, cosA*sinB*cosY + sinA*sinY, 0,
+                                   sinA*cosB, sinA*sinB*sinY + cosA*cosY ,sinA*sinB*cosY - cosA*sinY, 0,
+                                   -sinB, cosB*sinY, cosB*cosY, 0,
+                                   0,0,0,1};
+
+    glm::mat4x4 translationMatrix = {1,0,0, translate.x,
+                                     0,1,0,translate.y,
+                                     0,0,1,translate.z,
+                                     0,0,0,1};
+
+    glm::mat4x4 translationMatrix1 = {1,0,0, m_pos.x,
+                                      0,1,0,m_pos.y,
+                                      0,0,1,m_pos.z,
+                                      0,0,0,1};
+
+    glm::mat4x4 translationMatrix2 = {1,0,0, -m_pos.x,
+                                      0,1,0,-m_pos.y,
+                                      0,0,1,-m_pos.z,
+                                      0,0,0,1};
+
+    glm::mat4x4 scaleMatrix = { scale.x,0,0,0,
+                                0,scale.y,0,0,
+                                0,0,scale.z,0,
+                                0,0,0,1};
+
+    glm::mat4x4 transformationMatrix = translationMatrix2 * rotationMatrix * scaleMatrix * translationMatrix1 * translationMatrix;
 
     for (int i=0; i<vertices.size(); i++){
-        vertices[i] = vertices[i] * rotationMatrix;
-        (mesh->vertices)[i] = glm::vec3((vertices[i].x * scale.x) + translate.x,(vertices[i].y * scale.y) + translate.y,(vertices[i].z * scale.z) + translate.z);
+        (mesh->vertices)[i] = glm::vec4(vertices[i],1) * transformationMatrix;
     }
     for (int i=0; i<verticesNormals.size(); i++){
-        mesh->verticesNormals[i] = mesh->verticesNormals[i] * rotationMatrix;
+        mesh->verticesNormals[i] = glm::vec4(mesh->verticesNormals[i],1) * rotationMatrix;
     }
     for (int i=0; i<triangles.size(); i++){
-        glm::vec3 posA = ((triangles[i].posA * rotationMatrix * scale) + translate);
-        glm::vec3 posB = ((triangles[i].posB * rotationMatrix * scale) + translate);
-        glm::vec3 posC = ((triangles[i].posC * rotationMatrix * scale) + translate);
-        glm::vec3 newNormal = triangles[i].normalA * rotationMatrix;
+        glm::vec3 posA = glm::vec4(triangles[i].posA,1) * transformationMatrix;
+        glm::vec3 posB = glm::vec4(triangles[i].posB,1) * transformationMatrix;
+        glm::vec3 posC = glm::vec4(triangles[i].posC,1) * transformationMatrix;
+        glm::vec3 newNormal = glm::vec4(triangles[i].normalA,1) * rotationMatrix;
         mesh->triangles[i] = {posA,posB,posC,newNormal,newNormal,newNormal};
     }
     updateBounds(mesh);

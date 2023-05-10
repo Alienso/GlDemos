@@ -69,7 +69,7 @@ void SceneAdvancedRayTracing::setupModel() {
     spheres.push_back(new Sphere(glm::vec3(0.0, -1030.0, 0.0), 1000, RayTracingMaterials::lightBlue)); //bottom
 
     Mesh* base = new Mesh("rifle.obj");
-    glm::vec3 t = glm::vec3(-5,0,0);
+    glm::vec3 t = glm::vec3(-5,5,0);
     glm::vec3 r = glm::vec3(0,90,0);
     Mesh* newMesh = base->transform(t,0.33f,r);
     meshes.push_back(newMesh);
@@ -139,7 +139,7 @@ void SceneAdvancedRayTracing::setupSquareRoom() {
     Mesh* bottom =  base->transform(glm::vec3(0,-30,0),glm::vec3(30,30,30),glm::vec3(0,0,90));
     Mesh* top =  base->transform(glm::vec3(0,30,0),glm::vec3(30,30,30),glm::vec3(0,0,-90));
     Mesh* back =  base->transform(glm::vec3(0,0,30),glm::vec3(30,30,30),glm::vec3(0,0,0));
-    Mesh* front =  base->transform(glm::vec3(0,0,-30),glm::vec3(30,30,30),glm::vec3(0,0,0));
+    Mesh* front =  base->transform(glm::vec3(0,0,-30),glm::vec3(30,30,30),glm::vec3(0,180,0));
     Mesh* right =  base->transform(glm::vec3(30,0,0),glm::vec3(30,30,30),glm::vec3(0,90,0));
     Mesh* left =  base->transform(glm::vec3(-30,0,0),glm::vec3(30,30,30),glm::vec3(0,-90,0));
 
