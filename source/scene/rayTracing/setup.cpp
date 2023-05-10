@@ -12,7 +12,7 @@ static void setupMaterialUniforms(const std::string& name, RayTracingMaterial& m
 
 void SceneAdvancedRayTracing::setupSpheresBasic() {
     spheres.push_back(new Sphere(glm::vec3(-120, 80, 50), 35.0, RayTracingMaterials::white));
-    spheres[0]->material.emissionStrength = 20; //this is the sun
+    spheres[0]->material.emissionStrength = 5; //this is the sun
     spheres[0]->material.isInvisibleLightSource = 1;
     lightSources.push_back(&spheres[0]->position);
 

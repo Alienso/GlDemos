@@ -36,13 +36,13 @@ SceneAdvancedRayTracing::SceneAdvancedRayTracing(GLFWwindow* _window) : window(_
             2, 3, 0
     };
 
-    //setupSpheresBasic();
+    setupSpheresBasic();
     //setupSpheresReflectingWalls();
     //setupSpheresReflectingOrbs();
     //setupModel();
     //setupModelIndoors();
     //setupCubeRoom();
-    setupSquareRoom();
+    //setupSquareRoom();
 
     vb = new VertexBuffer(vertices, sizeof(vertices));
     layout = new VertexBufferLayout();

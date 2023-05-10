@@ -237,7 +237,9 @@ vec3 trace(Ray ray, inout uint state){
 
     for (int i=0; i<MAX_BOUNCE; i++){
 
-        if (i == MAX_BOUNCE - 1){ // todo
+        if (i == MAX_BOUNCE - 1){
+            // TODO fix light positions
+            // TODO in basic sphere test, white sphere gets light at the bottom but it shouldn't
             ray.dir = normalize(lightPositions[0] - ray.origin);
         }
 
