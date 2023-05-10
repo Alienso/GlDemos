@@ -43,6 +43,8 @@ private:
     Mesh* selectedMesh = nullptr;
     int selectedMeshIndex = 0;
 
+    std::vector<glm::vec3*> lightSources = {};
+
     unsigned int framesRendered = 0;
     int resetFrameBuffer = 0;
 
@@ -63,9 +65,10 @@ private:
     void setupCubeRoom();
     void setupSquareRoom();
 
-    void SetUniformSpheres(std::vector<Sphere*>& array);
-    void setUniformMeshInfo(std::vector<MeshInfo*>& meshInfo);
+    void setupUniformSpheres(std::vector<Sphere*>& array);
+    void setupUniformMeshInfo(std::vector<MeshInfo*>& meshInfo);
     void setUniformTriangles(std::vector<Triangle*>& triangles);
+    void setupLightPositions();
 };
 
 #endif //GRASSTERRAIN_SCENEADVANCEDRAYTRACING_H

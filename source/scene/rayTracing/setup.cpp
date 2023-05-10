@@ -14,6 +14,7 @@ void SceneAdvancedRayTracing::setupSpheresBasic() {
     spheres.push_back(new Sphere(glm::vec3(-120, 80, 50), 35.0, RayTracingMaterials::white));
     spheres[0]->material.emissionStrength = 20; //this is the sun
     spheres[0]->material.isInvisibleLightSource = 1;
+    lightSources.push_back(&spheres[0]->position);
 
     spheres.push_back(new Sphere(glm::vec3(16.4,7,-0.65), 10.0, RayTracingMaterials::white));
     spheres.push_back(new Sphere(glm::vec3(-0.9, 3.9, -5), 6.0, RayTracingMaterials::red));
@@ -27,6 +28,7 @@ void SceneAdvancedRayTracing::setupSpheresBasic() {
 void SceneAdvancedRayTracing::setupSpheresReflectingOrbs() {
     spheres.push_back(new Sphere(glm::vec3(0.0, 34.0, 0.0), 10, RayTracingMaterials::white));
     spheres[0]->material.emissionStrength = 20; //this is the sun
+    lightSources.push_back(&spheres[0]->position);
 
     spheres.push_back(new Sphere(glm::vec3(0.0, -1030.0, 0.0), 1000, RayTracingMaterials::white)); //bottom
     spheres.push_back(new Sphere(glm::vec3(0.0, 1030.0, 0.0), 1000, RayTracingMaterials::white)); //top
@@ -44,6 +46,7 @@ void SceneAdvancedRayTracing::setupSpheresReflectingOrbs() {
 void SceneAdvancedRayTracing::setupSpheresReflectingWalls() {
     spheres.push_back(new Sphere(glm::vec3(0.0, 34.0, 0.0), 10, RayTracingMaterials::white));
     spheres[0]->material.emissionStrength = 20; //this is the sun
+    lightSources.push_back(&spheres[0]->position);
 
     spheres.push_back(new Sphere(glm::vec3(0.0, -1030.0, 0.0), 1000, RayTracingMaterials::white)); //bottom
     spheres[spheres.size()-1]->material.smoothness = spheres[spheres.size()-1]->material.specularProbability = 1;
@@ -65,6 +68,7 @@ void SceneAdvancedRayTracing::setupSpheresReflectingWalls() {
 void SceneAdvancedRayTracing::setupModel() {
     spheres.push_back(new Sphere(glm::vec3(-120, 80, 50), 35.0, RayTracingMaterials::white));
     spheres[0]->material.emissionStrength = 10; //this is the sun
+    lightSources.push_back(&spheres[0]->position);
 
     spheres.push_back(new Sphere(glm::vec3(0.0, -1030.0, 0.0), 1000, RayTracingMaterials::lightBlue)); //bottom
 
@@ -81,6 +85,7 @@ void SceneAdvancedRayTracing::setupModel() {
 void SceneAdvancedRayTracing::setupModelIndoors() {
     spheres.push_back(new Sphere(glm::vec3(0.0, 34.0, 0.0), 10, RayTracingMaterials::white));
     spheres[0]->material.emissionStrength = 3; //this is the sun
+    lightSources.push_back(&spheres[0]->position);
 
     spheres.push_back(new Sphere(glm::vec3(0.0, -1030.0, 0.0), 1000, RayTracingMaterials::white)); //bottom
     spheres.push_back(new Sphere(glm::vec3(0.0, 1030.0, 0.0), 1000, RayTracingMaterials::white)); //top
@@ -103,6 +108,7 @@ void SceneAdvancedRayTracing::setupModelIndoors() {
 void SceneAdvancedRayTracing::setupCubeRoom() {
     Mesh* base = new Mesh("cube.obj");
     Mesh* light = base->transform(glm::vec3(0,25,0),glm::vec3(5,1,5),glm::vec3(0,0,0));
+    lightSources.push_back(&light->m_pos);
 
     Mesh* bottom =  base->transform(glm::vec3(0,-30,0),glm::vec3(30,1,30),glm::vec3(0,0,0));
     Mesh* top =  base->transform(glm::vec3(0,30,0),glm::vec3(30,1,30),glm::vec3(0,0,0));
@@ -120,7 +126,7 @@ void SceneAdvancedRayTracing::setupCubeRoom() {
     meshes.push_back(left);
 
     addMeshInfo(light, &RayTracingMaterials::white);
-    meshInfoArray[0]->material.emissionStrength = 5;
+    meshInfoArray[0]->material.emissionStrength = 2;
     addMeshInfo(bottom, &RayTracingMaterials::white);
     addMeshInfo(top, &RayTracingMaterials::white);
     addMeshInfo(back, &RayTracingMaterials::lightBlue);
@@ -135,6 +141,7 @@ void SceneAdvancedRayTracing::setupSquareRoom() {
     Mesh* base = new Mesh("square.obj");
     Mesh* cube = new Mesh("cube.obj");
     Mesh* light = cube->transform(glm::vec3(0,25,0),glm::vec3(5,1,5),glm::vec3(0,0,0));
+    lightSources.push_back(&light->m_pos);
 
     Mesh* bottom =  base->transform(glm::vec3(0,-30,0),glm::vec3(30,30,30),glm::vec3(0,0,90));
     Mesh* top =  base->transform(glm::vec3(0,30,0),glm::vec3(30,30,30),glm::vec3(0,0,-90));
@@ -152,7 +159,7 @@ void SceneAdvancedRayTracing::setupSquareRoom() {
     meshes.push_back(left);
 
     addMeshInfo(light, &RayTracingMaterials::white);
-    meshInfoArray[0]->material.emissionStrength = 5;
+    meshInfoArray[0]->material.emissionStrength = 2;
     addMeshInfo(bottom, &RayTracingMaterials::white);
     addMeshInfo(top, &RayTracingMaterials::white);
     addMeshInfo(back, &RayTracingMaterials::lightBlue);
@@ -166,7 +173,7 @@ void SceneAdvancedRayTracing::setupSquareRoom() {
     free(cube);
 }
 
-void SceneAdvancedRayTracing::SetUniformSpheres(std::vector<Sphere*>& array){
+void SceneAdvancedRayTracing::setupUniformSpheres(std::vector<Sphere*>& array){
     PROFILE_SCOPE("SetupUniformSpheres");
     for (int i=0; i<spheres.size(); i++){
         glUniform3f(shader->getUniformLocation("uSpheres[" + std::to_string(i) + "].position"),array[i]->position.x, array[i]->position.y, array[i]->position.z);
@@ -175,7 +182,7 @@ void SceneAdvancedRayTracing::SetUniformSpheres(std::vector<Sphere*>& array){
     }
 }
 
-void SceneAdvancedRayTracing::setUniformMeshInfo(std::vector<MeshInfo*>& meshInfo) {
+void SceneAdvancedRayTracing::setupUniformMeshInfo(std::vector<MeshInfo*>& meshInfo) {
     PROFILE_SCOPE("SetupUniformMeshInfo");
     for (int i=0; i<meshInfo.size(); i++){
         glUniform1i(shader->getUniformLocation("uMeshInfo[" + std::to_string(i) + "].firstTriangleIndex"), meshInfo[i]->firstTriangleIndex);
@@ -197,6 +204,12 @@ void setupMaterialUniforms(const std::string& name, RayTracingMaterial& material
     glUniform1f(shader->getUniformLocation(name + std::to_string(i) + "].material.transparency"), material.transparency);
     glUniform1f(shader->getUniformLocation(name + std::to_string(i) + "].material.refractionIndex"), material.refractionIndex);
 
+}
+
+void SceneAdvancedRayTracing::setupLightPositions(){
+    for (int i=0; i<lightSources.size(); i++){
+        glUniform3f(shader->getUniformLocation("lightPositions[" + std::to_string(i) + "]"), lightSources[i]->x, lightSources[i]->y, lightSources[i]->z);
+    }
 }
 
 /*void SceneAdvancedRayTracing::setUniformTriangles(std::vector<Triangle*>& triangles) {

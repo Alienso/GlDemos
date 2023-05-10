@@ -91,12 +91,14 @@ void SceneAdvancedRayTracing::onRender() {
     shader->setVec3("uCameraFocusPoint", camera.front);
 
     shader->setInt("uSphereCount", spheres.size());
-    SetUniformSpheres(spheres);
+    setupUniformSpheres(spheres);
     shader->setUInt("uFramesRendered", framesRendered);
     shader->setInt("uResetBuffer", resetFrameBuffer);
 
     shader->setInt("uMeshCount",meshes.size());
-    setUniformMeshInfo(meshInfoArray);
+    setupUniformMeshInfo(meshInfoArray);
+
+    setupLightPositions();
 
     ssb->bind();
 

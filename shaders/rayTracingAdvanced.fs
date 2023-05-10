@@ -62,6 +62,8 @@ uniform int uMeshCount;
 uniform Sphere uSpheres[10];
 uniform int uSphereCount;
 
+uniform vec3 lightPositions[10];
+
 uniform int uResetBuffer;
 uniform sampler2D uPrevFrame;
 
@@ -176,9 +178,10 @@ HitInfo CalculateRayCollision(Ray ray){
     	    int triIndex = meshInfo.firstTriangleIndex + i;
     		Triangle tri = bTriangles[triIndex];
 
-    		//if (i==0 && dot(tri.normalA,ray.dir) > 0){
-    		//    continue;
-    		//}
+            //if we are at first ray bounce and triangle is faced away from us we skip it
+    		if (i==0 && dot(tri.normalA,ray.dir) > 0){
+    		    continue;
+    		}
 
     		HitInfo hitInfo = RayTriangle(ray, tri);
 
@@ -234,9 +237,8 @@ vec3 trace(Ray ray, inout uint state){
 
     for (int i=0; i<MAX_BOUNCE; i++){
 
-        if (i == MAX_BOUNCE - 1){
-            //todo change this to light pos
-            ray.dir = normalize(uSpheres[0].position - ray.origin);
+        if (i == MAX_BOUNCE - 1){ // todo
+            ray.dir = normalize(lightPositions[0] - ray.origin);
         }
 
         HitInfo hitInfo = CalculateRayCollision(ray);
