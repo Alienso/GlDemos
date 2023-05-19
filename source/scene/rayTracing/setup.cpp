@@ -66,7 +66,7 @@ void SceneAdvancedRayTracing::setupSpheresReflectingWalls() {
 }
 
 void SceneAdvancedRayTracing::setupModel() {
-    spheres.push_back(new Sphere(glm::vec3(-120, 80, 50), 35.0, RayTracingMaterials::white));
+    spheres.push_back(new Sphere(glm::vec3(0, 50, 0), 24.0, RayTracingMaterials::white));
     spheres[0]->material.emissionStrength = 10; //this is the sun
     lightSources.push_back(&spheres[0]->position);
 
@@ -150,6 +150,8 @@ void SceneAdvancedRayTracing::setupSquareRoom() {
     Mesh* right =  base->transform(glm::vec3(30,0,0),glm::vec3(30,30,30),glm::vec3(0,90,0));
     Mesh* left =  base->transform(glm::vec3(-30,0,0),glm::vec3(30,30,30),glm::vec3(0,-90,0));
 
+    Mesh* newCube = cube->transform(glm::vec3(-10,0,0),glm::vec3(5,5,5),glm::vec3(0,0,0));
+
     meshes.push_back(light);
     meshes.push_back(bottom);
     meshes.push_back(top);
@@ -157,6 +159,7 @@ void SceneAdvancedRayTracing::setupSquareRoom() {
     meshes.push_back(front);
     meshes.push_back(right);
     meshes.push_back(left);
+    meshes.push_back(newCube);
 
     addMeshInfo(light, &RayTracingMaterials::white);
     meshInfoArray[0]->material.emissionStrength = 2;
@@ -166,8 +169,9 @@ void SceneAdvancedRayTracing::setupSquareRoom() {
     addMeshInfo(front, &RayTracingMaterials::white);
     addMeshInfo(right, &RayTracingMaterials::green);
     addMeshInfo(left, &RayTracingMaterials::red);
+    addMeshInfo(newCube, &RayTracingMaterials::yellow);
 
-    spheres.push_back(new Sphere(glm::vec3(0,0,0), 8, RayTracingMaterials::cyan));
+    spheres.push_back(new Sphere(glm::vec3(10,0,0), 8, RayTracingMaterials::cyan));
 
     free(base);
     free(cube);
@@ -181,11 +185,12 @@ void SceneAdvancedRayTracing::setupPortals() {
     spheres[0]->material.isInvisibleLightSource = 1;
     lightSources.push_back(&spheres[0]->position);
 
-    lightSources.push_back(&spheres[0]->position);
-
     Mesh* bottom =  base->transform(glm::vec3(0,-30,0),glm::vec3(100,100,100),glm::vec3(0,0,90));
     Mesh* portal1 =  base->transform(glm::vec3(15,0,30),glm::vec3(10,10,10),glm::vec3(0,0,0));
     Mesh* portal2 =  base->transform(glm::vec3(-15,0,30),glm::vec3(10,10,10),glm::vec3(0,0,0));
+
+    Mesh* back = base->transform(glm::vec3(0,0,-31),glm::vec3(100,100,100),glm::vec3(0,180,0));
+    Mesh* front = base->transform(glm::vec3(0,0,50),glm::vec3(100,100,100),glm::vec3(0,0,0));
 
     glm::vec3 t = glm::vec3(-0,0,0);
     glm::vec3 r = glm::vec3(0,0,0);
@@ -195,11 +200,15 @@ void SceneAdvancedRayTracing::setupPortals() {
     meshes.push_back(bottom);
     meshes.push_back(portal1);
     meshes.push_back(portal2);
+    meshes.push_back(back);
+    meshes.push_back(front);
     meshes.push_back(newMesh);
 
     addMeshInfo(bottom, &RayTracingMaterials::white);
     addMeshInfo(portal1, &RayTracingMaterials::white);
     addMeshInfo(portal2, &RayTracingMaterials::white);
+    addMeshInfo(back, &RayTracingMaterials::darkGrey);
+    addMeshInfo(front, &RayTracingMaterials::lightBlue);
     addMeshInfo(newMesh,&RayTracingMaterials::red);
 
     meshInfoArray[1]->isPortal = true;

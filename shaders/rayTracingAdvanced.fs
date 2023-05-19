@@ -83,7 +83,8 @@ layout(std430, binding = 3) readonly buffer vertex_buffer
 };
 
 #define RAYS_PER_PIXEL 10
-#define MAX_BOUNCE 6
+#define MAX_BOUNCE 15
+#define MAX_PORTAL_DEPTH 5
 
 vec3 GroundColour = vec3(0.35,0.3,0.35);
 vec3 SkyColourHorizon = vec3(1,1,1);
@@ -252,22 +253,24 @@ vec3 trace(Ray ray, inout uint state){
 
     vec3 incomingLight = vec3(0,0,0);
     vec3 rayColor = vec3(1,1,1);
+    int portalDepth = 0;
 
     for (int i=0; i<MAX_BOUNCE; i++){
 
-        //if (i == MAX_BOUNCE - 1){
+        if (i == MAX_BOUNCE - 1){
             // TODO fix light positions
             // TODO in basic sphere test, white sphere gets light at the bottom but it shouldn't
-            //ray.dir = normalize(lightPositions[0] - ray.origin);
-        //}
+            ray.dir = normalize(lightPositions[0] - ray.origin);
+        }
 
         HitInfo hitInfo = CalculateRayCollision(ray);
         if (hitInfo.didHit){
 
-            if (hitInfo.isPortal){
+            if (hitInfo.isPortal && portalDepth < MAX_PORTAL_DEPTH){
                 ray.origin = (vec4((hitInfo.hitPoint - hitInfo.portalPoint1),1) * hitInfo.portalRotationMatrix).xyz + hitInfo.portalPoint2;
                 ray.dir = (vec4(ray.dir,1) * hitInfo.portalRotationMatrix).xyz;
                 i-=1;
+                portalDepth++;
                 continue;
             }
 
@@ -310,7 +313,7 @@ vec3 trace(Ray ray, inout uint state){
             rayColor *= 1.0f / p;
         }
         else{
-            //incomingLight += getEnvironmentLight(ray) * rayColor;
+            incomingLight += getEnvironmentLight(ray) * rayColor;
             break;
         }
     }
