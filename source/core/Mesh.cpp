@@ -154,15 +154,57 @@ Mesh *Mesh::scale(glm::vec3& scale, Mesh* mesh) {
         m_scale = m_oldScale = scale;
     }
 
+    double cosA = cos(glm::radians(m_rotation.x));
+    double cosB = cos(glm::radians(m_rotation.y));
+    double cosY = cos(glm::radians(m_rotation.z));
+
+    double sinA = sin(glm::radians(m_rotation.x));
+    double sinB = sin(glm::radians(m_rotation.y));
+    double sinY = sin(glm::radians(m_rotation.z));
+
+    glm::mat4x4 rotationMatrix1 = { cosA*cosB, cosA*sinB*sinY - sinA*cosY, cosA*sinB*cosY + sinA*sinY, 0,
+                                   sinA*cosB, sinA*sinB*sinY + cosA*cosY ,sinA*sinB*cosY - cosA*sinY, 0,
+                                   -sinB, cosB*sinY, cosB*cosY, 0,
+                                   0,0,0,1};
+
+    cosA = cos(glm::radians(-m_rotation.x));
+    cosB = cos(glm::radians(-m_rotation.y));
+    cosY = cos(glm::radians(-m_rotation.z));
+
+    sinA = sin(glm::radians(-m_rotation.x));
+    sinB = sin(glm::radians(-m_rotation.y));
+    sinY = sin(glm::radians(-m_rotation.z));
+
+    glm::mat4x4 rotationMatrix2 = { cosA*cosB, cosA*sinB*sinY - sinA*cosY, cosA*sinB*cosY + sinA*sinY, 0,
+                                    sinA*cosB, sinA*sinB*sinY + cosA*cosY ,sinA*sinB*cosY - cosA*sinY, 0,
+                                    -sinB, cosB*sinY, cosB*cosY, 0,
+                                    0,0,0,1};
+
+
+    glm::mat4x4 translationMatrix1 = {1,0,0, m_pos.x,
+                                      0,1,0,m_pos.y,
+                                      0,0,1,m_pos.z,
+                                      0,0,0,1};
+
+    glm::mat4x4 translationMatrix2 = {1,0,0, -m_pos.x,
+                                      0,1,0,-m_pos.y,
+                                      0,0,1,-m_pos.z,
+                                      0,0,0,1};
+
+    glm::mat4x4 scaleMatrix = { scale.x,0,0,0,
+                                0,scale.y,0,0,
+                                0,0,scale.z,0,
+                                0,0,0,1};
+
+    glm::mat4x4 transformationMatrix = translationMatrix2 * rotationMatrix2  * scaleMatrix * rotationMatrix1 * translationMatrix1;
+
     for (int i=0; i<vertices.size(); i++){
-        mesh->vertices[i] = {(vertices[i].x - m_pos.x) * scale.x + m_pos.x,
-                             (vertices[i].y - m_pos.y) * scale.y + m_pos.y,
-                             (vertices[i].z - m_pos.z) * scale.z + m_pos.z };
+        mesh->vertices[i] = glm::vec4(vertices[i],1) * transformationMatrix;
     }
     for (int i=0; i<triangles.size(); i++){
-        mesh->triangles[i] = {(triangles[i].posA - m_pos) * scale + m_pos,
-                              (triangles[i].posB - m_pos) * scale + m_pos,
-                              (triangles[i].posC - m_pos) * scale + m_pos,
+        mesh->triangles[i] = { glm::vec4(triangles[i].posA,1) * transformationMatrix,
+                               glm::vec4(triangles[i].posB,1) * transformationMatrix,
+                               glm::vec4(triangles[i].posC,1) * transformationMatrix,
                               triangles[i].normalA, triangles[i].normalB, triangles[i].normalC};
     }
     mesh->verticesNormals = verticesNormals;

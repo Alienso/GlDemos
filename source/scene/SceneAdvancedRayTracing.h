@@ -64,6 +64,7 @@ private:
     void setupModelIndoors();
     void setupCubeRoom();
     void setupSquareRoom();
+    void setupPortals();
 
     void setupUniformSpheres(std::vector<Sphere*>& array);
     void setupUniformMeshInfo(std::vector<MeshInfo*>& meshInfo);

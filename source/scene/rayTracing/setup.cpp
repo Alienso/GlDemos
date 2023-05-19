@@ -173,6 +173,64 @@ void SceneAdvancedRayTracing::setupSquareRoom() {
     free(cube);
 }
 
+void SceneAdvancedRayTracing::setupPortals() {
+    Mesh* base = new Mesh("square.obj");
+    Mesh* cube = new Mesh("cube.obj");
+    spheres.push_back(new Sphere(glm::vec3(-120, 80, 50), 35.0, RayTracingMaterials::white));
+    spheres[0]->material.emissionStrength = 5; //this is the sun
+    spheres[0]->material.isInvisibleLightSource = 1;
+    lightSources.push_back(&spheres[0]->position);
+
+    lightSources.push_back(&spheres[0]->position);
+
+    Mesh* bottom =  base->transform(glm::vec3(0,-30,0),glm::vec3(100,100,100),glm::vec3(0,0,90));
+    Mesh* portal1 =  base->transform(glm::vec3(15,0,30),glm::vec3(10,10,10),glm::vec3(0,0,0));
+    Mesh* portal2 =  base->transform(glm::vec3(-15,0,30),glm::vec3(10,10,10),glm::vec3(0,0,0));
+
+    glm::vec3 t = glm::vec3(-0,0,0);
+    glm::vec3 r = glm::vec3(0,0,0);
+
+    Mesh* newMesh = cube->transform(t,5.0f,r);
+
+    meshes.push_back(bottom);
+    meshes.push_back(portal1);
+    meshes.push_back(portal2);
+    meshes.push_back(newMesh);
+
+    addMeshInfo(bottom, &RayTracingMaterials::white);
+    addMeshInfo(portal1, &RayTracingMaterials::white);
+    addMeshInfo(portal2, &RayTracingMaterials::white);
+    addMeshInfo(newMesh,&RayTracingMaterials::red);
+
+    meshInfoArray[1]->isPortal = true;
+    meshInfoArray[1]->portalPoint1 = portal1->m_pos;
+    meshInfoArray[1]->portalPoint2 = portal2->m_pos;
+
+    double cosA = cos(glm::radians(0.0));
+    double cosB = cos(glm::radians(180.0));
+    double cosY = cos(glm::radians(0.0));
+
+    double sinA = sin(glm::radians(0.0));
+    double sinB = sin(glm::radians(180.0));
+    double sinY = sin(glm::radians(0.0));
+
+    glm::mat4x4 rotationMatrix = { cosA*cosB, cosA*sinB*sinY - sinA*cosY, cosA*sinB*cosY + sinA*sinY, 0,
+                                   sinA*cosB, sinA*sinB*sinY + cosA*cosY ,sinA*sinB*cosY - cosA*sinY, 0,
+                                   -sinB, cosB*sinY, cosB*cosY, 0,
+                                   0,0,0,1};
+
+    meshInfoArray[1]->portalRotationMatrix = rotationMatrix;
+
+    meshInfoArray[2]->isPortal = true;
+    meshInfoArray[2]->portalPoint1 = portal2->m_pos;
+    meshInfoArray[2]->portalPoint2 = portal1->m_pos;
+    meshInfoArray[2]->portalRotationMatrix = rotationMatrix;
+
+    //spheres.push_back(new Sphere(glm::vec3(0,0,0), 8, RayTracingMaterials::cyan));
+
+    free(base);
+}
+
 void SceneAdvancedRayTracing::setupUniformSpheres(std::vector<Sphere*>& array){
     PROFILE_SCOPE("SetupUniformSpheres");
     for (int i=0; i<spheres.size(); i++){
@@ -190,6 +248,11 @@ void SceneAdvancedRayTracing::setupUniformMeshInfo(std::vector<MeshInfo*>& meshI
         setupMaterialUniforms("uMeshInfo[",meshInfo[i]->material,shader,i);
         glUniform3f(shader->getUniformLocation("uMeshInfo[" + std::to_string(i) + "].boundsMin"), meshInfo[i]->boundsMin.x,meshInfo[i]->boundsMin.y,meshInfo[i]->boundsMin.z);
         glUniform3f(shader->getUniformLocation("uMeshInfo[" + std::to_string(i) + "].boundsMax"), meshInfo[i]->boundsMax.x,meshInfo[i]->boundsMax.y,meshInfo[i]->boundsMax.z);
+
+        glUniform1ui(shader->getUniformLocation("uMeshInfo[" + std::to_string(i) + "].isPortal"), meshInfo[i]->isPortal);
+        glUniform3f(shader->getUniformLocation("uMeshInfo[" + std::to_string(i) + "].portalPoint1"), meshInfo[i]->portalPoint1.x,meshInfo[i]->portalPoint1.y,meshInfo[i]->portalPoint1.z);
+        glUniform3f(shader->getUniformLocation("uMeshInfo[" + std::to_string(i) + "].portalPoint2"), meshInfo[i]->portalPoint2.x,meshInfo[i]->portalPoint2.y,meshInfo[i]->portalPoint2.z);
+        glUniformMatrix4fv(shader->getUniformLocation("uMeshInfo[" + std::to_string(i) + "].portalRotationMatrix"),1,false,&(meshInfo[i]->portalRotationMatrix[0].x));
     }
 }
 

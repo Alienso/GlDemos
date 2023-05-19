@@ -20,8 +20,8 @@ SceneAdvancedRayTracing::SceneAdvancedRayTracing(GLFWwindow* _window) : window(_
     shader = new Shader("rayTracingAdvanced.vs", "rayTracingAdvanced.fs");
     screenShader = new Shader("frameBuffer.vs", "frameBuffer.fs");
     camera.pos = glm::vec3(0,6.0,-25.0);
-    camera.front = glm::vec3(0.0,-0.2334,0.97);
-    camera.yaw = -280;
+    camera.front = glm::vec3(0,0,1);
+    camera.yaw = 0;
 
     float vertices[] = {
             // positions   // texCoords
@@ -36,13 +36,14 @@ SceneAdvancedRayTracing::SceneAdvancedRayTracing(GLFWwindow* _window) : window(_
             2, 3, 0
     };
 
-    setupSpheresBasic();
+    //setupSpheresBasic();
     //setupSpheresReflectingWalls();
     //setupSpheresReflectingOrbs();
     //setupModel();
     //setupModelIndoors();
     //setupCubeRoom();
     //setupSquareRoom();
+    setupPortals();
 
     vb = new VertexBuffer(vertices, sizeof(vertices));
     layout = new VertexBufferLayout();
@@ -89,6 +90,7 @@ void SceneAdvancedRayTracing::onRender() {
     shader->setVec2("uResolution",Configuration::wWidth,Configuration::wHeight);
     shader->setVec3("uCameraPos", camera.pos);
     shader->setVec3("uCameraFocusPoint", camera.front);
+    shader->setMat4("uCameraTransformationMatrix", camera.transformationMatrix);
 
     shader->setInt("uSphereCount", spheres.size());
     setupUniformSpheres(spheres);
@@ -116,7 +118,7 @@ void SceneAdvancedRayTracing::onRender() {
 void SceneAdvancedRayTracing::onUpdate(float deltaTime) {
     PROFILE_SCOPE("onUpdate");
     //processMouseClick(); //todo temp moved to onImGuiRender
-    // processMouseInput();
+    processMouseInput();
     processKeyboardInput(deltaTime);
     resetFrameBuffer = 0;
 }
@@ -126,6 +128,9 @@ void SceneAdvancedRayTracing::onImGuiRender() {
     ImGui::Begin("Ray Tracing Demo");
 
     ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+    ImGui::Text("Camera pos: %.1f,%.1f,%.1f. Yaw %.1f, Pitch %.1f", camera.pos.x, camera.pos.y, camera.pos.z, camera.yaw, camera.pitch);
+    ImGui::Text("Camera front: %.1f,%.1f,%.1f", camera.front.x, camera.front.y, camera.front.z);
+
     if(selectedSphere != nullptr){
         createWidget(ImGui::SliderFloat("X",&selectedSphere->position.x,-50,50));
         createWidget(ImGui::SliderFloat("Y",&selectedSphere->position.y,-50,50));
@@ -239,19 +244,25 @@ void SceneAdvancedRayTracing::processMouseInput() {
 
     float xoffset = xpos - camera.lastPos[0];
     float yoffset = camera.lastPos[1] - ypos;
-    camera.lastPos[0] = xpos;
-    camera.lastPos[1] = ypos;
 
-    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_1) != GLFW_PRESS){
+    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_2) == GLFW_RELEASE){
+        camera.lastPos[0] = xpos;
+        camera.lastPos[1] = ypos;
+    }
+
+    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_2) != GLFW_PRESS){
         return;
     }
+
+    camera.lastPos[0] = xpos;
+    camera.lastPos[1] = ypos;
 
     float sensitivity = 0.5f;
     xoffset *= sensitivity;
     yoffset *= sensitivity;
 
     camera.yaw += xoffset;
-    camera.pitch += yoffset;
+    camera.pitch -= yoffset;
 
     if (camera.pitch > 89.0f)
         camera.pitch = 89.0f;
@@ -259,10 +270,24 @@ void SceneAdvancedRayTracing::processMouseInput() {
         camera.pitch = -89.0f;
 
     glm::vec3 front;
-    front.x = cos(glm::radians(camera.yaw)) * cos(glm::radians(camera.pitch));
-    front.y = sin(glm::radians(camera.pitch));
-    front.z = sin(glm::radians(camera.yaw)) * cos(glm::radians(camera.pitch));
+    front.z = cos(glm::radians(camera.yaw)) * cos(glm::radians(camera.pitch));
+    front.y = -sin(glm::radians(camera.pitch));
+    front.x = sin(glm::radians(camera.yaw)) * cos(glm::radians(camera.pitch));
     camera.front = glm::normalize(front);
+
+    double cosA = cos(glm::radians(camera.pitch));
+    double cosB = cos(glm::radians(camera.yaw));
+    double cosY = cos(glm::radians(0.0));
+
+    double sinA = sin(glm::radians(camera.pitch));
+    double sinB = sin(glm::radians(camera.yaw));
+    double sinY = sin(glm::radians(0.0));
+
+    camera.transformationMatrix = { cosB*cosY, sinA*sinB*cosY - cosA*sinY, cosA*sinB*cosY + sinA*sinY, 0,
+                                   cosB*sinY, sinA*sinB*sinY + cosA*cosY ,cosA*sinB*sinY - sinA*cosY, 0,
+                                   -sinB, sinA*cosB, cosA*cosB, 0,
+                                   0,0,0,1};
+
 
     resetFrameBuffer = 1;
     framesRendered = 0;

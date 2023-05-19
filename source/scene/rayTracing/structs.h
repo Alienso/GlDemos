@@ -47,9 +47,19 @@ struct MeshInfo{
     glm::vec3 boundsMin{};
     glm::vec3 boundsMax{};
 
+    bool isPortal = false;
+    glm::vec3 portalPoint1{};
+    glm::vec3 portalPoint2{};
+    glm::mat4x4 portalRotationMatrix{};
+
     MeshInfo()= default;
     MeshInfo(int _firstTriangleIndex, int _numTriangles, RayTracingMaterial _rayTracingMaterial, glm::vec3 _boundsMin, glm::vec3 _boundsMax) :
     firstTriangleIndex(_firstTriangleIndex), numTriangles(_numTriangles), material(_rayTracingMaterial), boundsMin(_boundsMin), boundsMax(_boundsMax) {}
+
+    MeshInfo(int _firstTriangleIndex, int _numTriangles, RayTracingMaterial _rayTracingMaterial, glm::vec3 _boundsMin, glm::vec3 _boundsMax,
+            glm::vec3 _portalPoint1, glm::vec3 _portalPoint2, glm::mat4x4 _portalRotationMatrix) : firstTriangleIndex(_firstTriangleIndex), numTriangles(_numTriangles),
+            material(_rayTracingMaterial), boundsMin(_boundsMin), boundsMax(_boundsMax),
+            isPortal(true), portalPoint1(_portalPoint1), portalPoint2(_portalPoint2), portalRotationMatrix(_portalRotationMatrix) {}
 };
 
 

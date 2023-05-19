@@ -13,7 +13,7 @@ void SceneAdvancedRayTracing::trace(double xPos, double yPos){
     uv = uv * glm::vec2(2.0) - glm::vec2(1.0);//transform from [0,1] to [-1,1]
     uv.x *= (float)(Configuration::wWidth)/(float)Configuration::wHeight; //aspect fix
 
-    glm::vec3 rayDir = normalize(camera.front + glm::vec3(uv.x,uv.y,0));
+    glm::vec3 rayDir = normalize(glm::vec4(glm::vec3(0,0,1) + glm::vec3(uv.x,uv.y,0),1) * camera.transformationMatrix);
 
     for (auto & sphere : spheres){
         float dist = raySphere(camera.pos, rayDir, sphere->position, sphere->radius);

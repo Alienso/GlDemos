@@ -28,6 +28,10 @@ struct MeshInfo{
     RayTracingMaterial material;
     vec3 boundsMin;
     vec3 boundsMax;
+    bool isPortal;
+    vec3 portalPoint1;
+    vec3 portalPoint2;
+    mat4 portalRotationMatrix;
 };
 
 struct Ray{
@@ -43,6 +47,10 @@ struct HitInfo{
     RayTracingMaterial material;
     int sphereIndex;
     int meshIndex;
+    bool isPortal;
+    vec3 portalPoint1;
+    vec3 portalPoint2;
+    mat4 portalRotationMatrix;
 };
 
 in vec2 TexCoords;
@@ -55,6 +63,8 @@ uniform vec2 uResolution;
 uniform vec3 uCameraPos;
 uniform vec3 uCameraFocusPoint;
 uniform uint uFramesRendered;
+
+uniform mat4 uCameraTransformationMatrix;
 
 uniform MeshInfo uMeshInfo[10];
 uniform int uMeshCount;
@@ -72,7 +82,7 @@ layout(std430, binding = 3) readonly buffer vertex_buffer
     Triangle bTriangles[];
 };
 
-#define RAYS_PER_PIXEL 1
+#define RAYS_PER_PIXEL 10
 #define MAX_BOUNCE 6
 
 vec3 GroundColour = vec3(0.35,0.3,0.35);
@@ -190,6 +200,14 @@ HitInfo CalculateRayCollision(Ray ray){
                 closest.material = meshInfo.material;
                 closest.meshIndex = i;
                 closest.sphereIndex = -1;
+
+                if (meshInfo.isPortal){
+                    closest.isPortal = meshInfo.isPortal;
+                    closest.portalPoint1 = meshInfo.portalPoint1;
+                    closest.portalPoint2 = meshInfo.portalPoint2;
+                    closest.portalRotationMatrix = meshInfo.portalRotationMatrix;
+                }
+
             }
     	}
     }
@@ -237,14 +255,22 @@ vec3 trace(Ray ray, inout uint state){
 
     for (int i=0; i<MAX_BOUNCE; i++){
 
-        if (i == MAX_BOUNCE - 1){
+        //if (i == MAX_BOUNCE - 1){
             // TODO fix light positions
             // TODO in basic sphere test, white sphere gets light at the bottom but it shouldn't
-            ray.dir = normalize(lightPositions[0] - ray.origin);
-        }
+            //ray.dir = normalize(lightPositions[0] - ray.origin);
+        //}
 
         HitInfo hitInfo = CalculateRayCollision(ray);
         if (hitInfo.didHit){
+
+            if (hitInfo.isPortal){
+                ray.origin = (vec4((hitInfo.hitPoint - hitInfo.portalPoint1),1) * hitInfo.portalRotationMatrix).xyz + hitInfo.portalPoint2;
+                ray.dir = (vec4(ray.dir,1) * hitInfo.portalRotationMatrix).xyz;
+                i-=1;
+                continue;
+            }
+
             ray.origin = hitInfo.hitPoint;
             if (hitInfo.material.isInvisibleLightSource == 1 && i == 0){
 			    ray.origin = hitInfo.hitPoint + ray.dir * 0.001;
@@ -284,7 +310,7 @@ vec3 trace(Ray ray, inout uint state){
             rayColor *= 1.0f / p;
         }
         else{
-            incomingLight += getEnvironmentLight(ray) * rayColor;
+            //incomingLight += getEnvironmentLight(ray) * rayColor;
             break;
         }
     }
@@ -299,17 +325,25 @@ void main(){
     // Normalized pixel coordinates (from 0 to 1)
     vec2 uv = gl_FragCoord.xy/iResolution.xy;
 
-    uv = uv * 2.0 - 1.0;//transform from [0,1] to [-1,1]
+    uv = uv * 2.0 - 1.0;//transform from [0,1] to [-1,1] //this is FOV
     uv.x *= iResolution.x / iResolution.y; //aspect fix
 
     vec3 cameraDir = uCameraFocusPoint;
     //vec3 cameraFocusPoint = vec3(0.0,0.0,0.0);
     //vec3 cameraDir = normalize(cameraFocusPoint - uCameraPos);
-    vec3 rayDir = normalize(cameraDir + vec3(uv,0));
+
+    //vec3 rayDir = normalize((vec4(cameraDir + vec3(uv,0),1) * uCameraTransformationMatrix).xyz);
+    vec3 rayDir = normalize((vec4(vec3(0,0,1) + vec3(uv,0),1) * uCameraTransformationMatrix).xyz);
+    //vec3 rayDir = normalize(cameraDir + normalize(uCameraTransformationMatrix * vec4(vec3(uv,0),1)).xyz);
+    //vec3 rayDir = normalize(cameraDir + vec3(uv,0));
 
     Ray ray;
     ray.origin = uCameraPos;
     ray.dir = rayDir;
+
+    //vec3 focusPointLocal = vec3(uv, 1) * uViewParams;
+    //vec3 cameraFocusPoint = (uCameraTransformationMatrix * vec4(focusPointLocal,1)).xyz;
+    //ray.dir = normalize(cameraFocusPoint - ray.origin);
 
     //vec3 spherePos = vec3(0,0,-1);
     //HitInfo hitInfo = RaySphere(ray, spherePos, 2);

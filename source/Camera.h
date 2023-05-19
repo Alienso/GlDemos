@@ -5,7 +5,8 @@
 #ifndef GRASSTERRAIN_CAMERA_H
 #define GRASSTERRAIN_CAMERA_H
 
-#include "../lib/glm/glm.hpp"
+#include <glm/ext/matrix_transform.hpp>
+#include "glm/glm.hpp"
 
 class Camera {
 
@@ -19,6 +20,7 @@ public:
     glm::vec3 up;
     float yaw;
     float pitch;
+    glm::mat4x4 transformationMatrix = glm::identity<glm::mat4x4>();
 };
 
 
