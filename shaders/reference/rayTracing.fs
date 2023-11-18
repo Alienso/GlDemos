@@ -6,7 +6,7 @@ uniform vec4 uMouse;
 uniform vec2 uResolution;
 
 #define AVERAGECOUNT 64
-#define MAX_BOUNCE 64
+#define MAX_BOUNCE 32
 
 //--scene data---------------------------------------------------------------------
 #define SPHERECOUNT 6
@@ -123,7 +123,7 @@ vec4 calculateFinalColor(vec3 cameraPos, vec3 cameraRayDir, float AAIndex)
                 break;
             }
 
-    		absorbMul *= 0.8; //every bounce absorb some light(more bounces = darker)
+    		absorbMul *= 0.8; //every bounce absorb some white(more bounces = darker)
 
             //update rayStartPos for next bounce
     		rayStartPos = rayStartPos + rayDir * h.rayLength;
@@ -133,7 +133,7 @@ vec4 calculateFinalColor(vec3 cameraPos, vec3 cameraRayDir, float AAIndex)
     }
 
     //can't write recursive function in GLSL, so write it in a for loop
-    //will loop until hitting any light source / bounces too many times
+    //will loop until hitting any white source / bounces too many times
     return vec4(finalColor,firstHitRayLength);//alpha nly for CineShader, to show depth
 }
 

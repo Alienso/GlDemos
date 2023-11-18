@@ -1,5 +1,5 @@
 //
-// Created by Alienson on 19.9.2022..
+// Created by Alienso on 19.9.2022..
 //
 
 #ifndef GRASSTERRAIN_TEXTURE_H
@@ -14,7 +14,6 @@ private:
     unsigned char* localBuffer;
     int width,height,BPP;
 public:
-    Texture();
     Texture(const char* path, unsigned int type);
     ~Texture();
 

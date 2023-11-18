@@ -1,5 +1,5 @@
 //
-// Created by Alienson on 19.9.2022..
+// Created by Alienso on 19.9.2022..
 //
 
 #ifndef GRASSTERRAIN_RENDERER_H
@@ -12,8 +12,7 @@
 class Renderer {
 
 public:
-    Renderer();
-    ~Renderer();
+    Renderer() = default;
 
     void draw(VertexArray& va,IndexBuffer& ib,Shader& shader);
     void clear();

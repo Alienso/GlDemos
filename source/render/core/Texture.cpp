@@ -1,5 +1,5 @@
 //
-// Created by Alienson on 19.9.2022..
+// Created by Alienso on 19.9.2022..
 //
 
 #include "Texture.h"
@@ -9,8 +9,6 @@
 
 #include <iostream>
 
-Texture::Texture() {
-}
 
 Texture::Texture(const char *path, unsigned int type) : rendererID(0), filePath(path), localBuffer(nullptr), width(0), height(0), BPP(0) {
 

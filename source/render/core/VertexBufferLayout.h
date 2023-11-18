@@ -1,5 +1,5 @@
 //
-// Created by Alienson on 19.9.2022..
+// Created by Alienso on 19.9.2022..
 //
 
 #ifndef GRASSTERRAIN_VERTEXBUFFERLAYOUT_H
@@ -19,8 +19,8 @@ struct VertexBufferElement{
             case GL_FLOAT:          return 4;
             case GL_UNSIGNED_INT:   return 4;
             case GL_UNSIGNED_BYTE:  return 1;
+            default: return 0;
         }
-        return 0;
     }
 };
 

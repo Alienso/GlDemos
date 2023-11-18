@@ -1,5 +1,5 @@
 //
-// Created by Alienson on 26.9.2022..
+// Created by Alienso on 26.9.2022..
 //
 
 #include "Axes3D.h"
@@ -30,7 +30,6 @@ void Axes3D::render(glm::mat4& projection,glm::mat4& view, glm::mat4& model) {
     shader->setMat4("model",model);
     shader->setVec3("uColor",1.0f,1.0f,1.0f);
     glDrawArrays(GL_LINES,0,6);
-    glLineWidth;
     glLineWidth(lineWidth);
 }
 

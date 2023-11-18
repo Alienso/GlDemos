@@ -1,5 +1,5 @@
 //
-// Created by Alienson on 23.9.2022..
+// Created by Alienso on 23.9.2022..
 //
 
 #ifndef GRASSTERRAIN_CONFIGURATION_H
@@ -13,8 +13,7 @@ public:
     static float fov;
     static float fovMax;
 
-    Configuration(){
-    };
+    Configuration()= default;
 };
 
 #endif //GRASSTERRAIN_CONFIGURATION_H

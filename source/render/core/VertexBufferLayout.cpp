@@ -1,12 +1,10 @@
 //
-// Created by Alienson on 19.9.2022..
+// Created by Alienso on 19.9.2022..
 //
 
 #include "VertexBufferLayout.h"
 
-VertexBufferLayout::VertexBufferLayout() : stride(0) {
-
-}
+VertexBufferLayout::VertexBufferLayout() : stride(0) {}
 
 const std::vector<VertexBufferElement> &VertexBufferLayout::getElements() const {
     return elements;

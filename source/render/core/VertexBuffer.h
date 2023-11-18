@@ -1,5 +1,5 @@
 //
-// Created by Alienson on 19.9.2022..
+// Created by Alienso on 19.9.2022..
 //
 
 #ifndef GRASSTERRAIN_VERTEXBUFFER_H
@@ -11,6 +11,7 @@ public:
     VertexBuffer();
     VertexBuffer(const void *data, unsigned int size);
     ~VertexBuffer();
+
     void bind() const;
     void unbind() const;
 
