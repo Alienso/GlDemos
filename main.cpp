@@ -8,16 +8,16 @@
 #include <iostream>
 #include <cmath>
 #include <cstdlib>
+#include <pthread.h>
 
 #include "lib/imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
-#include "source/scene/SceneTexture.h"
-#include "source/scene/SceneTriangle.h"
-#include "source/scene/SceneRayTracing.h"
-#include "source/Configuration.h"
-#include "source/scene/Scene3D.h"
-#include "source/scene/SceneRandomWorldGen.h"
+#include "source/render/scene/SceneTriangle.h"
+#include "source/render/Configuration.h"
+
+#include "source/logic/Audio.h"
+#include "source/render/scene/SceneFrequency.h"
 
 void GLAPIENTRY glErrorCallback( GLenum source,
                  GLenum type,
@@ -42,6 +42,11 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height){
 }
 
 int main() {
+
+    Audio::init();
+    pthread_t audioThread;
+    pthread_create(&audioThread, NULL, reinterpret_cast<void *(*)(void *)>(Audio::processAudio), NULL);
+
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -72,13 +77,9 @@ int main() {
 
     srand(glfwGetTime());
 
-    //SceneTexture scene;
-    //SceneTriangle scene;
-    //SceneRayTracing scene;
-    //Scene3D scene(window);
-    SceneRandomWorldGen scene(window);
+    SceneFrequency scene;
 
-    printf("Hello!");
+    //printf("Hello!");
 
     float lastTime = glfwGetTime();
     {
