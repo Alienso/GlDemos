@@ -11,8 +11,7 @@ uniform mat4 projection;
 uniform vec3 uColor;
 uniform float uTime;
 
-void main()
-{
+void main(){
     vec3 pos = aPos;
     pos.x = pos.x + (pos.y/12)*sin(uTime * (1 + baseHeight));
 	gl_Position = projection * view * model * vec4(pos, 1.0f);

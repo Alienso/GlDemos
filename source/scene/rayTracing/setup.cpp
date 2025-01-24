@@ -72,7 +72,7 @@ void SceneAdvancedRayTracing::setupModel() {
 
     spheres.push_back(new Sphere(glm::vec3(0.0, -1030.0, 0.0), 1000, RayTracingMaterials::lightBlue)); //bottom
 
-    Mesh* base = new Mesh("rifle.obj");
+    Mesh* base = new Mesh("models/rifle.obj");
     glm::vec3 t = glm::vec3(-5,5,0);
     glm::vec3 r = glm::vec3(0,90,0);
     Mesh* newMesh = base->transform(t,0.33f,r);
@@ -95,7 +95,7 @@ void SceneAdvancedRayTracing::setupModelIndoors() {
     spheres.push_back(new Sphere(glm::vec3(-1030.0, 0.0, 0.0), 1000, RayTracingMaterials::red)); //left
     spheres.push_back(new Sphere(glm::vec3(0,0,0), 8, RayTracingMaterials::cyan));
 
-    Mesh* base = new Mesh("cube.obj");
+    Mesh* base = new Mesh("models/cube.obj");
     glm::vec3 t = glm::vec3(-0,0,0);
     glm::vec3 r = glm::vec3(20,90,20);
     Mesh* newMesh = base->transform(t,5.0f,r);
@@ -106,7 +106,7 @@ void SceneAdvancedRayTracing::setupModelIndoors() {
 }
 
 void SceneAdvancedRayTracing::setupCubeRoom() {
-    Mesh* base = new Mesh("cube.obj");
+    Mesh* base = new Mesh("models/cube.obj");
     Mesh* light = base->transform(glm::vec3(0,25,0),glm::vec3(5,1,5),glm::vec3(0,0,0));
     lightSources.push_back(&light->m_pos);
 
@@ -138,8 +138,8 @@ void SceneAdvancedRayTracing::setupCubeRoom() {
 }
 
 void SceneAdvancedRayTracing::setupSquareRoom() {
-    Mesh* base = new Mesh("square.obj");
-    Mesh* cube = new Mesh("cube.obj");
+    Mesh* base = new Mesh("models/square.obj");
+    Mesh* cube = new Mesh("models/cube.obj");
     Mesh* light = cube->transform(glm::vec3(0,25,0),glm::vec3(5,1,5),glm::vec3(0,0,0));
     lightSources.push_back(&light->m_pos);
 
@@ -178,8 +178,8 @@ void SceneAdvancedRayTracing::setupSquareRoom() {
 }
 
 void SceneAdvancedRayTracing::setupPortals() {
-    Mesh* base = new Mesh("square.obj");
-    Mesh* cube = new Mesh("cube.obj");
+    Mesh* base = new Mesh("models/square.obj");
+    Mesh* cube = new Mesh("models/cube.obj");
     spheres.push_back(new Sphere(glm::vec3(-120, 80, 50), 35.0, RayTracingMaterials::white));
     spheres[0]->material.emissionStrength = 5; //this is the sun
     spheres[0]->material.isInvisibleLightSource = 1;

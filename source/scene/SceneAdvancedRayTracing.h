@@ -13,6 +13,7 @@
 #include "../Camera.h"
 #include "../core/ShaderStorageBuffer.h"
 #include "../core/Mesh.h"
+#include "../core/Texture.h"
 
 class SceneAdvancedRayTracing : public Scene {
 public:
@@ -34,6 +35,7 @@ private:
     IndexBuffer* ib;
     FrameBuffer* fb;
     ShaderStorageBuffer* ssb;
+    Texture* texture;
 
     std::vector<Sphere*> spheres{};
     Sphere* selectedSphere = nullptr;
@@ -44,6 +46,8 @@ private:
     int selectedMeshIndex = 0;
 
     std::vector<glm::vec3*> lightSources = {};
+
+    int blurStr = 3;
 
     unsigned int framesRendered = 0;
     int resetFrameBuffer = 0;

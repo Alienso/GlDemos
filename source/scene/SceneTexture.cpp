@@ -9,10 +9,10 @@ SceneTexture::SceneTexture(){
 
     shader = new Shader("texture.vs","texture.fs");
     float vertices[] = {
-            -0.5f, -0.5f,0.0f, 0.0f, // bottom right
-            0.5f, -0.5f, 1.0f, 0.0f, // bottom left
-            0.5f, 0.5f, 1.0f, 1.0f, // top
-            -0.5f, 0.5f, 0.0f, 1.0f //bottom
+            -1.0f, -1.0f,0.0f, 0.0f, // bottom right
+            1.0f, -1.0f, 1.0f, 0.0f, // bottom left
+            1.0f, 1.0f, 1.0f, 1.0f, // top
+            -1.0f, 1.0f, 0.0f, 1.0f //bottom
     };
 
     unsigned int indices[] = {
@@ -28,7 +28,7 @@ SceneTexture::SceneTexture(){
     va->addBuffer(*vb, *layout);
     ib = new IndexBuffer(indices, 6);
 
-    texture = new Texture ("Background.jpg",GL_RGB);
+    texture = new Texture ("textures/10.jpg",GL_RGB);
     texture->bind();
     shader->use();
 }

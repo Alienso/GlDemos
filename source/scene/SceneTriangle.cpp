@@ -2,6 +2,7 @@
 // Created by Alienso on 23.9.2022..
 //
 
+#include <imgui/imgui.h>
 #include "SceneTriangle.h"
 
 SceneTriangle::SceneTriangle() {
@@ -46,5 +47,7 @@ void SceneTriangle::onUpdate(float deltaTime) {
 }
 
 void SceneTriangle::onImGuiRender() {
-
+    ImGui::Begin("Hello, world!");
+    ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+    ImGui::End();
 }

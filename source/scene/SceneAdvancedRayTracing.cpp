@@ -17,8 +17,15 @@ SceneAdvancedRayTracing::SceneAdvancedRayTracing(GLFWwindow* _window) : window(_
 
     glEnable( GL_TEXTURE_2D );
 
-    shader = new Shader("rayTracingAdvanced.vs", "rayTracingAdvanced.fs");
+    //shader = new Shader("raytracing/rayTracingBasic.vs", "raytracing/rayTracingBasic.fs");
+    shader = new Shader("raytracing/rayTracingAdvanced.vs", "raytracing/rayTracingAdvanced.fs");
+    //shader = new Shader("texture.vs", "texture.fs");
+    //shader = new Shader("raytracing/rayTracingNearSight.vs", "raytracing/rayTracingNearSight.fs");
+
+
     screenShader = new Shader("frameBuffer.vs", "frameBuffer.fs");
+    //screenShader = new Shader("postprocessing/blur.vs", "postprocessing/blur.fs");
+
     camera.pos = glm::vec3(0,6.0,-25.0);
     camera.front = glm::vec3(0,0,1);
     camera.yaw = 0;
@@ -54,6 +61,8 @@ SceneAdvancedRayTracing::SceneAdvancedRayTracing(GLFWwindow* _window) : window(_
     ib = new IndexBuffer(indices, 6);
     fb = new FrameBuffer();
     ssb = new ShaderStorageBuffer(meshes);
+
+    //texture = new Texture ("textures/10.jpg",GL_RGB);
 }
 
 SceneAdvancedRayTracing::~SceneAdvancedRayTracing() {
@@ -65,6 +74,7 @@ SceneAdvancedRayTracing::~SceneAdvancedRayTracing() {
     free(ib);
     free(fb);
     free(ssb);
+    free(texture);
 
     for (auto &mesh : meshes)
         delete mesh;
@@ -100,15 +110,23 @@ void SceneAdvancedRayTracing::onRender() {
     shader->setInt("uMeshCount",meshes.size());
     setupUniformMeshInfo(meshInfoArray);
 
+    //shader->setInt("u_Texture",0);
+
     setupLightPositions();
 
     ssb->bind();
+    //texture->bind();
 
     renderer.draw(*va,*ib,*shader);
+
+    //texture->unbind();
 
     fb->unbind();
     fb->bindTexture();
     screenShader->use();
+
+    screenShader->setVec2("uResolution",Configuration::wWidth,Configuration::wHeight);
+    screenShader->setUInt("uBlurStr", blurStr);
 
     renderer.draw(*va, *ib, *screenShader);
 
@@ -130,6 +148,8 @@ void SceneAdvancedRayTracing::onImGuiRender() {
     ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
     ImGui::Text("Camera pos: %.1f,%.1f,%.1f. Yaw %.1f, Pitch %.1f", camera.pos.x, camera.pos.y, camera.pos.z, camera.yaw, camera.pitch);
     ImGui::Text("Camera front: %.1f,%.1f,%.1f", camera.front.x, camera.front.y, camera.front.z);
+
+    //ImGui::SliderInt("Blur Strength", &blurStr, 0 , 20);
 
     if(selectedSphere != nullptr){
         createWidget(ImGui::SliderFloat("X",&selectedSphere->position.x,-50,50));
